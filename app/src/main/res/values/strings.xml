@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">EmergencyPreparednessManager</string>
+    <string name="emergency_preparedness_manager">Emergency Preparedness Manager</string>
+    <string name="build_kits_track_supplies_and_stay_ready">Build kits, track supplies, and stay ready.</string>
+    <string name="manage_kits">Manage Kits</string>
+    <string name="search_supplies">Search Supplies</string>
+    <string name="reports">Reports</string>
 </resources>
