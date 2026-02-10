@@ -57,13 +57,13 @@ public class KitAdapter extends RecyclerView.Adapter<KitAdapter.KitViewHolder> {
 
     // ------------------- DATA -------------------
 
+    public List<Kit> getKits() {
+        return kits;
+    }
+
     public void setKits(List<Kit> kitList) {
         this.kits = kitList != null ? kitList : new ArrayList<>();
         notifyDataSetChanged();
-    }
-
-    public List<Kit> getKits() {
-        return kits;
     }
 
     // ------------------- VIEW HOLDER -------------------
