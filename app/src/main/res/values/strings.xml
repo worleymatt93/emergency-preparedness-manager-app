@@ -5,4 +5,13 @@
     <string name="manage_kits">Manage Kits</string>
     <string name="search_supplies">Search Supplies</string>
     <string name="reports">Reports</string>
+    <string name="no_kits_yet">No kits yet</string>
+    <string name="create_kit">Create kit</string>
+    <string name="kits">Kits</string>
+    <string name="add_kit">Add kit</string>
+    <string name="create_your_first_kit_to_start_tracking_supplies">Create your first kit to start tracking supplies.</string>
+    <string name="search">Search</string>
+    <string name="kit_name">Kit Name</string>
+    <string name="location">Location</string>
+    <string name="no_location_set">No location set</string>
 </resources>

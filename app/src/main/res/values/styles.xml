@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="MyToolbarPopupMenu" parent="ThemeOverlay.Material3">
+        <item name="android:popupBackground">@color/surface</item>
+        <item name="android:textColor">@color/onSurface</item>
+    </style>
+</resources>
