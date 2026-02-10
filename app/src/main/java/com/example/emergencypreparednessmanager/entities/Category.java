@@ -2,13 +2,17 @@ package com.example.emergencypreparednessmanager.entities;
 
 import androidx.room.Entity;
 import androidx.room.Ignore;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 /**
  * Entity representing a category for kit items.
  * Categories are seeded on first run and may be user-managed.
  */
-@Entity(tableName = "Categories")
+@Entity(
+        tableName = "Categories",
+        indices = {@Index(value = {"categoryName"}, unique = true)}
+)
 public class Category {
 
     // ------------------- DATABASE FIELDS -------------------
