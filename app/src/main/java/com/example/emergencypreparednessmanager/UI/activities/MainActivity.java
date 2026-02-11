@@ -45,6 +45,10 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        /* TODO
+        Create SearchActivity & ReportsActivity
+
+
         btnSearch.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, SearchActivity.class);
             startActivity(intent);
@@ -54,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, ReportsActivity.class);
             startActivity(intent);
         });
+
+         */
     }
 
     /**
