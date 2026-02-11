@@ -2,6 +2,7 @@ package com.example.emergencypreparednessmanager.UI.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -18,6 +19,7 @@ import com.example.emergencypreparednessmanager.R;
 import com.example.emergencypreparednessmanager.UI.adapters.KitAdapter;
 import com.example.emergencypreparednessmanager.database.Repository;
 import com.example.emergencypreparednessmanager.entities.Kit;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -28,6 +30,7 @@ public class KitListActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private Repository repository;
     private KitAdapter kitAdapter;
+    private View emptyStateLayout;
 
     // ------------------- LIFECYCLE -------------------
 
@@ -41,6 +44,14 @@ public class KitListActivity extends AppCompatActivity {
 
         setupInsets();
         setupRecyclerView();
+
+        emptyStateLayout = findViewById(R.id.emptyStateLayout);
+        MaterialButton btnCreateFirstKit = findViewById(R.id.btnCreateFirstKit);
+
+        btnCreateFirstKit.setOnClickListener(v -> {
+            Intent intent = new Intent(KitListActivity.this, KitDetailsActivity.class);
+            startActivity(intent);
+        });
 
         repository = new Repository(getApplication());
 
@@ -136,14 +147,20 @@ public class KitListActivity extends AppCompatActivity {
                                 kitAdapter.notifyItemInserted(position);
 
                                 // Re-insert into database
-                                repository.insert(kit, id -> showToast("Kit restored"));
+                                repository.insert(kit, id -> {
+                                    showToast("Kit restored");
+                                    loadKits();
+                                });
 
                             }).addCallback(new Snackbar.Callback() {
                                 @Override
                                 public void onDismissed(Snackbar transientBottomBar, int event) {
                                     if (event != DISMISS_EVENT_ACTION) {
                                         // Snackbar dismissed without UNDO; commit deletion to DB
-                                        repository.delete(kit, () -> showToast("Kit deleted"));
+                                        repository.delete(kit, () -> {
+                                            showToast("Kit deleted");
+                                            loadKits();
+                                        });
                                     }
                                 }
                             }).show();
@@ -167,18 +184,14 @@ public class KitListActivity extends AppCompatActivity {
 
     // ------------------- DATA LOADING -------------------
 
-    /**
-     * Loads all kits asynchronously and updates the RecyclerView adapter.
-     * Shows a Toast if no kits are found.
-     */
     private void loadKits() {
         repository.getAllKits(kits -> {
-            if (kits != null && !kits.isEmpty()) {
-                kitAdapter.setKits(kits);
-            } else {
-                kitAdapter.setKits(kits); // clears list when empty
-                showToast("No kits found");
-            }
+            boolean hasKits = kits != null && !kits.isEmpty();
+
+            kitAdapter.setKits(kits); // works for both empty and non-empty
+
+            recyclerView.setVisibility(hasKits ? View.VISIBLE : View.GONE);
+            emptyStateLayout.setVisibility(hasKits ? View.GONE : View.VISIBLE);
         });
     }
 

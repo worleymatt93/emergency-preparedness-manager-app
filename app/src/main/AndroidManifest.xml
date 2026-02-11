@@ -15,6 +15,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.EmergencyPreparednessManager">
+
+        <activity android:name=".UI.activities.KitListActivity" />
+        <activity android:name=".UI.activities.KitDetailsActivity" />
+
         <activity
             android:name=".UI.activities.MainActivity"
             android:exported="true">
