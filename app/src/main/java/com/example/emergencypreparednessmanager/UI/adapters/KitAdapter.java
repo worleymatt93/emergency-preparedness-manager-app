@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.emergencypreparednessmanager.R;
+import com.example.emergencypreparednessmanager.UI.activities.KitDetailsActivity;
 import com.example.emergencypreparednessmanager.entities.Kit;
 import com.google.android.material.textview.MaterialTextView;
 
