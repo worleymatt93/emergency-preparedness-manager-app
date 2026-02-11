@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.emergencypreparednessmanager.R;
-import com.example.emergencypreparednessmanager.UI.activities.KitDetailsActivity;
+import com.example.emergencypreparednessmanager.UI.activities.KitItemsActivity;
 import com.example.emergencypreparednessmanager.entities.Kit;
 import com.google.android.material.textview.MaterialTextView;
 
@@ -82,12 +82,13 @@ public class KitAdapter extends RecyclerView.Adapter<KitAdapter.KitViewHolder> {
 
             itemView.setOnClickListener(view -> {
                 int position = getBindingAdapterPosition();
-                if (position == RecyclerView.NO_POSITION) return;
+                if (position == RecyclerView.NO_POSITION || kits == null) return;
 
                 Kit current = kits.get(position);
 
-                Intent intent = new Intent(context, KitDetailsActivity.class);
-                intent.putExtra("kitID", current.getKitID());
+                Intent intent = new Intent(context, KitItemsActivity.class);
+                intent.putExtra(KitItemsActivity.EXTRA_KIT_ID, current.getKitID());
+                intent.putExtra(KitItemsActivity.EXTRA_KIT_NAME, current.getKitName());
                 context.startActivity(intent);
             });
         }
