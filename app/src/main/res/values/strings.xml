@@ -44,4 +44,7 @@
     <string name="undo">UNDO</string>
     <string name="save_kit_before_adding_items">Save the kit before adding items</string>
     <string name="todo_add_item_screen">Add item screen not built yet</string>
+    <string name="save_kit">Save Kit</string>
+    <string name="add_your_first_item">Add your first item to start tracking supplies.</string>
+    <string name="edit_kit">Edit kit</string>
 </resources>

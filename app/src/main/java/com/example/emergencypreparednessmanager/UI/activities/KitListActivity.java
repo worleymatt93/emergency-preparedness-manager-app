@@ -31,6 +31,7 @@ public class KitListActivity extends AppCompatActivity {
     private Repository repository;
     private KitAdapter kitAdapter;
     private View emptyStateLayout;
+    private FloatingActionButton fab;
 
     // ------------------- LIFECYCLE -------------------
 
@@ -49,7 +50,7 @@ public class KitListActivity extends AppCompatActivity {
         MaterialButton btnCreateFirstKit = findViewById(R.id.btnCreateFirstKit);
 
         btnCreateFirstKit.setOnClickListener(v -> {
-            Intent intent = new Intent(KitListActivity.this, KitDetailsActivity.class);
+            Intent intent = new Intent(KitListActivity.this, KitEditActivity.class);
             startActivity(intent);
         });
 
@@ -175,9 +176,9 @@ public class KitListActivity extends AppCompatActivity {
      * Configures the FAB to launch KitDetailsActivity for adding a new kit.
      */
     private void setupFab() {
-        FloatingActionButton fab = findViewById(R.id.floatingActionButton);
+        fab = findViewById(R.id.floatingActionButton);
         fab.setOnClickListener(v -> {
-            Intent intent = new Intent(KitListActivity.this, KitDetailsActivity.class);
+            Intent intent = new Intent(KitListActivity.this, KitEditActivity.class);
             startActivity(intent);
         });
     }
@@ -192,6 +193,11 @@ public class KitListActivity extends AppCompatActivity {
 
             recyclerView.setVisibility(hasKits ? View.VISIBLE : View.GONE);
             emptyStateLayout.setVisibility(hasKits ? View.GONE : View.VISIBLE);
+
+            // Hide FAB when empty
+            if (fab != null) {
+                fab.setVisibility(hasKits ? View.VISIBLE : View.GONE);
+            }
         });
     }
 

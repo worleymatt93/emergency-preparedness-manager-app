@@ -19,7 +19,7 @@ import com.example.emergencypreparednessmanager.entities.KitItem;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Kit.class, KitItem.class, Category.class}, version = 2, exportSchema = false)
+@Database(entities = {Kit.class, KitItem.class, Category.class}, version = 4, exportSchema = false)
 public abstract class DatabaseBuilder extends RoomDatabase {
 
     private static final String TAG = "DatabaseBuilder";
