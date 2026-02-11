@@ -1,5 +1,6 @@
 package com.example.emergencypreparednessmanager.dao;
 
+import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
@@ -13,6 +14,7 @@ import java.util.List;
  * DAO for Category entities.
  * Used for scalable dropdown values.
  */
+@Dao
 public interface CategoryDAO {
 
     @Insert
