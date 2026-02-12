@@ -13,15 +13,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.emergencypreparednessmanager.R;
 import com.example.emergencypreparednessmanager.UI.adapters.KitItemAdapter;
 import com.example.emergencypreparednessmanager.database.Repository;
+import com.example.emergencypreparednessmanager.entities.KitItem;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 public class KitItemsActivity extends AppCompatActivity {
 
@@ -105,23 +108,85 @@ public class KitItemsActivity extends AppCompatActivity {
         adapter = new KitItemAdapter(this);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
+
+        attachSwipeToDelete();
     }
 
+    /**
+     * Attaches swipe-to-delete behavior to the kits RecyclerView.
+     * Prevents deletion if the kit contains items.
+     * Displays an undo SnackBar before permanently deleting a kit.
+     */
+    private void attachSwipeToDelete() {
+
+        ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(
+                0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT
+        ) {
+            @Override
+            public boolean onMove(
+                    @NonNull RecyclerView recyclerView,
+                    @NonNull RecyclerView.ViewHolder viewHolder,
+                    @NonNull RecyclerView.ViewHolder target
+            ) {
+                // Drag-and-drop is not supported
+                return false;
+            }
+
+            @Override
+            public void onSwiped(
+                    @NonNull RecyclerView.ViewHolder viewHolder,
+                    int direction
+            ) {
+                int position = viewHolder.getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) return;
+
+                // Cache the item for possible UNDO
+                KitItem item = adapter.getItems().get(position);
+
+                // Remove item from adapter for immediate swipe animation
+                adapter.getItems().remove(position);
+                adapter.notifyItemRemoved(position);
+
+
+                // Show UNDO snackbar
+                Snackbar.make(recyclerView, "Item removed", Snackbar.LENGTH_LONG)
+                        .setAction("UNDO", v -> {
+
+                            // Restore item in adapter
+                            adapter.getItems().add(position, item);
+                            adapter.notifyItemInserted(position);
+                            recyclerView.scrollToPosition(position);
+
+                            showToast("Item restored");
+
+                        }).addCallback(new Snackbar.Callback() {
+                            @Override
+                            public void onDismissed(Snackbar transientBottomBar, int event) {
+                                if (event != DISMISS_EVENT_ACTION) {
+                                    // Snackbar dismissed without UNDO; commit deletion to DB
+                                    repository.delete(item, () -> {
+                                        showToast("Item deleted");
+                                        loadItems();
+                                    });
+                                }
+                            }
+                        }).show();
+                }
+            };
+
+            new ItemTouchHelper(callback).attachToRecyclerView(recyclerView);
+        }
+
     private void launchAddItem() {
-        // TODO: Replace with KitItemEditActivity
-        showToast(getString(R.string.todo_add_item_screen));
+        Intent intent = new Intent(this, KitItemEditActivity.class);
+        intent.putExtra(KitItemEditActivity.EXTRA_KIT_ID, kitID);
+        startActivity(intent);
     }
 
     private void setupFab() {
-        fab.setOnClickListener(v -> {
-            // TODO: Replace with KitItemEditActivity
-            showToast(getString(R.string.todo_add_item_screen));
-
-            // Example later:
-            // fab.setOnClickListener(v -> launchAddItem();
-            // btnAddFirstItem.setOnClickListener(v -> launchAddItem());
-        });
-    }
+        fab.setOnClickListener(v -> launchAddItem());
+        btnAddFirstItem.setOnClickListener(v -> launchAddItem());
+        }
 
     private void loadItems() {
         repository.getItemsForKit(kitID, items -> {
@@ -133,6 +198,7 @@ public class KitItemsActivity extends AppCompatActivity {
             emptyStateLayout.setVisibility(empty ? View.VISIBLE : View.GONE);
             recyclerView.setVisibility(empty ? View.GONE : View.VISIBLE);
 
+            btnAddFirstItem.setVisibility(empty ? View.VISIBLE : View.GONE);
             fab.setVisibility(empty ? View.GONE : View.VISIBLE);
         });
     }

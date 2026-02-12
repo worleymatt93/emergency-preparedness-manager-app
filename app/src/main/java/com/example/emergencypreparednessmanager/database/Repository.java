@@ -152,6 +152,13 @@ public class Repository {
         });
     }
 
+    public void getItemById(int itemID, Consumer<KitItem> callback) {
+        databaseExecutor.execute(() -> {
+            KitItem item = mKitItemDAO.getItemById(itemID);
+            mainHandler.post(() -> callback.accept(item));
+        });
+    }
+
     /**
      * Inserts a kit item asynchronously.
      *

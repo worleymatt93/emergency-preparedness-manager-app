@@ -53,4 +53,7 @@ public interface KitItemDAO {
     // Low stock report
     @Query("SELECT * FROM KitItems WHERE quantity <= :threshold ORDER BY quantity ASC")
     List<KitItem> getLowStockItems(int threshold);
+
+    @Query("SELECT * FROM KitItems WHERE itemID = :itemID LIMIT 1")
+    KitItem getItemById(int itemID);
 }

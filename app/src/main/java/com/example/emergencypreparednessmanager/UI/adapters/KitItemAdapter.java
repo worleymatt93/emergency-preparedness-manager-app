@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.emergencypreparednessmanager.R;
+import com.example.emergencypreparednessmanager.UI.activities.KitItemEditActivity;
 import com.example.emergencypreparednessmanager.entities.KitItem;
 import com.google.android.material.textview.MaterialTextView;
 
@@ -85,14 +86,10 @@ public class KitItemAdapter extends RecyclerView.Adapter<KitItemAdapter.KitItemV
 
                 KitItem current = items.get(position);
 
-                /* TODO
-                Create KitItemDetailsActivity.java
-
-                Intent intent = new Intent(context, KitItemDetailsActivity.class);
-                intent.putExtra("itemID", current.getItemID());
-                intent.putExtra("kitID", current.getKitID());
+                Intent intent = new Intent(context, KitItemEditActivity.class);
+                intent.putExtra(KitItemEditActivity.EXTRA_KIT_ID, current.getKitID());
+                intent.putExtra(KitItemEditActivity.EXTRA_ITEM_ID, current.getItemID());
                 context.startActivity(intent);
-                */
             });
         }
 
