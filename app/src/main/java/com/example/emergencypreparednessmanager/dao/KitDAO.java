@@ -35,4 +35,12 @@ public interface KitDAO {
 
     @Query("SELECT * FROM Kits WHERE kitID = :id LIMIT 1")
     Kit getKitByID(int id);
+
+    // ------------------- NOTIFICATIONS -------------------
+
+    @Query("SELECT * FROM Kits WHERE notificationsEnabled = 1 ORDER BY kitID ASC")
+    List<Kit> getKitsWithNotificationsEnabled();
+
+    @Query("SELECT * FROM Kits WHERE notificationsEnabled = 1 AND notificationFrequency = :frequency ORDER BY kitID ASC")
+    List<Kit> getKitsByFrequency(String frequency);
 }
