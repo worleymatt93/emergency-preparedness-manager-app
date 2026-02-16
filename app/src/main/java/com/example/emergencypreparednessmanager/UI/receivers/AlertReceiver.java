@@ -1,6 +1,7 @@
 package com.example.emergencypreparednessmanager.UI.receivers;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +13,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.example.emergencypreparednessmanager.R;
+import com.example.emergencypreparednessmanager.UI.activities.MainActivity;
 
 public class AlertReceiver extends BroadcastReceiver {
 
@@ -35,6 +37,7 @@ public class AlertReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "Broadcast received: " + intent);
+
         if (intent == null) {
             Log.w(TAG, "Intent is null, aborting notification");
             return;
@@ -55,16 +58,29 @@ public class AlertReceiver extends BroadcastReceiver {
             return;
         }
 
+        // Tap action: open the app
+        Intent openIntent = new Intent(context, MainActivity.class);
+        openIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        PendingIntent contentIntent = PendingIntent.getActivity(
+                context,
+                requestCode != -1 ? requestCode : 0,
+                openIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
         // Build the notification
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(context, CHANNEL_ID)
                         .setSmallIcon(R.drawable.outline_circle_notifications_24)
                         .setContentTitle(title)
                         .setContentText(message)
+                        .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
+                        .setContentIntent(contentIntent)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setAutoCancel(true);
 
-        // Check notification permission on Android 13+ before showing notification
+        // Android 13+ runtime permission check
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.POST_NOTIFICATIONS
@@ -73,12 +89,9 @@ public class AlertReceiver extends BroadcastReceiver {
             return;
         }
 
-        // Show the notification
-        NotificationManagerCompat.from(context).notify(
-                requestCode != -1 ? requestCode : (int) System.currentTimeMillis(),
-                builder.build()
-        );
+        int notifId = (requestCode != -1) ? requestCode : (int) System.currentTimeMillis();
+        NotificationManagerCompat.from(context).notify(notifId, builder.build());
 
-        Log.d(TAG, "Notification displayed successfully");
+        Log.d(TAG, "Notification displayed: id=" + notifId);
     }
 }
