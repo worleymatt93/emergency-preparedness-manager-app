@@ -17,21 +17,36 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.emergencypreparednessmanager.R;
 import com.example.emergencypreparednessmanager.UI.adapters.KitAdapter;
+import com.example.emergencypreparednessmanager.UI.receivers.AlertReceiver;
 import com.example.emergencypreparednessmanager.database.Repository;
 import com.example.emergencypreparednessmanager.entities.Kit;
+import com.example.emergencypreparednessmanager.util.NotificationScheduler;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 public class KitListActivity extends AppCompatActivity {
 
-    // ------------------- DATA -------------------
+    // ------------------- UI / DATA -------------------
 
+    private MaterialToolbar toolbar;
     private RecyclerView recyclerView;
-    private Repository repository;
-    private KitAdapter kitAdapter;
     private View emptyStateLayout;
     private FloatingActionButton fab;
+
+    private Repository repository;
+    private KitAdapter kitAdapter;
+
+    /**
+     * Precomputed set of kits that have at least 1 item.
+     * If a kit ID is in here, we block swipe-to-delete immediately with no Snackbar.
+     */
+    private final Set<Integer> nonDeletableKitIds = new HashSet<>();
 
     // ------------------- LIFECYCLE -------------------
 
@@ -42,6 +57,9 @@ public class KitListActivity extends AppCompatActivity {
         // Enable Edge-to-Edge layout for modern android devices
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_kit_list);
+
+        toolbar = findViewById(R.id.toolbar);
+        setupToolbar();
 
         setupInsets();
         setupRecyclerView();
@@ -64,6 +82,11 @@ public class KitListActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         loadKits(); // Refresh list when return to this screen
+    }
+
+    private void setupToolbar() {
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
     }
 
     // ------------------- SETUP -------------------
@@ -113,63 +136,57 @@ public class KitListActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onSwiped(
-                    @NonNull RecyclerView.ViewHolder viewHolder,
-                    int direction
-            ) {
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+
                 int position = viewHolder.getBindingAdapterPosition();
                 if (position == RecyclerView.NO_POSITION) return;
 
                 // Cache the kit for possible UNDO
                 Kit kit = kitAdapter.getKits().get(position);
+                int kitId = kit.getKitID();
 
-                // Remove item from adapter for immediate swipe animation
+                // If the kit has items, block immediately
+                if (nonDeletableKitIds.contains(kit.getKitID())) {
+                    kitAdapter.notifyItemChanged(position);
+                    showToast(getString(R.string.cannot_delete_kit_with_items));
+                    return;
+                }
+
+                // No items: proceed with the real remove & snackbar flow
                 kitAdapter.getKits().remove(position);
                 kitAdapter.notifyItemRemoved(position);
 
-                // Check if kit has items
-                repository.deleteKitIfNoItems(kit, success -> {
+                Snackbar.make(recyclerView, R.string.kit_removed, Snackbar.LENGTH_LONG)
+                        .setAction(R.string.undo, v -> {
+                            // Restore in adapter only
+                            kitAdapter.getKits().add(position, kit);
+                            kitAdapter.notifyItemInserted(position);
+                            recyclerView.scrollToPosition(position);
 
-                    if (!success) {
-                        // Kit has items: restore immediately
-                        kitAdapter.getKits().add(position, kit);
-                        kitAdapter.notifyItemInserted(position);
-                        recyclerView.scrollToPosition(position);
-                        showToast("Cannot delete a kit that has items");
-                        return;
-                    }
-
-                    // Kit has no items; show UNDO snackbar
-                    Snackbar.make(recyclerView, "Kit removed", Snackbar.LENGTH_LONG)
-                            .setAction("UNDO", v -> {
-
-                                // Restore item in adapter
-                                kitAdapter.getKits().add(position, kit);
-                                kitAdapter.notifyItemInserted(position);
-
-                                // Re-insert into database
-                                repository.insert(kit, id -> {
-                                    showToast("Kit restored");
-                                    loadKits();
-                                });
-
-                            }).addCallback(new Snackbar.Callback() {
-                                @Override
-                                public void onDismissed(Snackbar transientBottomBar, int event) {
-                                    if (event != DISMISS_EVENT_ACTION) {
-                                        // Snackbar dismissed without UNDO; commit deletion to DB
-                                        repository.delete(kit, () -> {
-                                            showToast("Kit deleted");
-                                            loadKits();
-                                        });
-                                    }
+                            showToast(getString(R.string.kit_restored));
+                        })
+                        .addCallback(new Snackbar.Callback() {
+                            @Override
+                            public void onDismissed(Snackbar transientBottomBar, int event) {
+                                if (event != DISMISS_EVENT_ACTION) {
+                                    // Commit deletion to db
+                                    repository.delete(kit, () -> {
+                                        showToast(getString(R.string.kit_deleted));
+                                        loadKits();
+                                    });
                                 }
-                            }).show();
-                });
-            }
-        };
+                            }
+                        })
+                        .show();
+                }
+            };
 
-        new ItemTouchHelper(callback).attachToRecyclerView(recyclerView);
+            new ItemTouchHelper(callback).attachToRecyclerView(recyclerView);
+    }
+
+    private void cancelKitNotifications(Kit kit) {
+        int requestCode = NotificationScheduler.generateRequestCode(String.valueOf(kit.getKitID()), "KIT");
+        NotificationScheduler.cancel(this, AlertReceiver.class, requestCode);
     }
 
     /**
@@ -198,7 +215,28 @@ public class KitListActivity extends AppCompatActivity {
             if (fab != null) {
                 fab.setVisibility(hasKits ? View.VISIBLE : View.GONE);
             }
+
+            // Precompute which kitIDs have items
+            precomputeNonDeletableKits(kits);
         });
+    }
+
+    private void precomputeNonDeletableKits(List<Kit> kits) {
+        nonDeletableKitIds.clear();
+
+        if (kits == null || kits.isEmpty()) return;
+
+        for (Kit kit : kits) {
+            final int kitId = kit.getKitID();
+
+            repository.getItemsForKit(kitId, items -> {
+                if (items != null && !items.isEmpty()) {
+                    nonDeletableKitIds.add(kitId);
+                } else {
+                    nonDeletableKitIds.remove(kitId);
+                }
+            });
+        }
     }
 
     /**
