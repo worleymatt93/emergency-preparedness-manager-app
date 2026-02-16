@@ -23,6 +23,8 @@
             android:elevation="4dp"
             app:title="@string/kit_details"
             app:titleTextColor="?attr/colorOnPrimaryContainer"
+            app:navigationIcon="@drawable/baseline_arrow_back_24"
+            app:popupTheme="@style/MyToolbarPopupMenu"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
@@ -86,31 +88,43 @@
             app:layout_constraintTop_toBottomOf="@+id/notesLayout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
-        
-        <LinearLayout
-            android:id="@+id/kitNotificationTimeLayout"
+
+        <!-- Frequency selector (shown only when notifications enabled) -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/kitFrequencyLayout"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="vertical"
+            android:layout_marginTop="12dp"
             android:visibility="gone"
+            app:endIconMode="dropdown_menu"
             app:layout_constraintTop_toBottomOf="@+id/kitNotifyCheckbox"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
-            
-            <com.google.android.material.textfield.TextInputLayout
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/kitFrequencyDropdown"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/kitNotificationTimeText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:focusable="false"
-                    android:hint="@string/notification_time" />
-            </com.google.android.material.textfield.TextInputLayout>
-        </LinearLayout>
-        
+                android:layout_height="wrap_content"
+                android:hint="@string/notification_frequency"
+                android:importantForAutofill="no"
+                android:inputType="none"
+                android:focusable="false"
+                android:cursorVisible="false" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Clarifies that the time is controlled globally in Settings -->
+        <TextView
+            android:id="@+id/kitGlobalTimeHint"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="@string/notification_time_global_hint"
+            android:textAppearance="?attr/textAppearanceBodySmall"
+            app:layout_constraintTop_toBottomOf="@id/kitFrequencyLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSaveKit"
             style="@style/Widget.Material3.Button"
@@ -118,9 +132,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="@string/save_kit"
-            app:layout_constraintTop_toBottomOf="@id/kitNotificationTimeLayout"
+            app:layout_constraintTop_toBottomOf="@+id/kitGlobalTimeHint"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
-        
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

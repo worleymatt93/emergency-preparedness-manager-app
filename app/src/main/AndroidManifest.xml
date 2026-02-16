@@ -4,7 +4,6 @@
 
     <!-- Notification permissions -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application
         android:allowBackup="true"
@@ -20,6 +19,7 @@
         <activity android:name=".UI.activities.KitEditActivity" />
         <activity android:name=".UI.activities.KitItemsActivity" />
         <activity android:name=".UI.activities.KitItemEditActivity" />
+        <activity android:name=".UI.activities.SettingsActivity" />
 
         <activity
             android:name=".UI.activities.MainActivity"
@@ -30,6 +30,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver
+            android:name=".UI.receivers.AlertReceiver"
+            android:exported="false" />
+
     </application>
 
 </manifest>

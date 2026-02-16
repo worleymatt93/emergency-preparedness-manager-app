@@ -3,6 +3,7 @@ package com.example.emergencypreparednessmanager.UI.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -13,14 +14,15 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.emergencypreparednessmanager.R;
+import com.example.emergencypreparednessmanager.UI.receivers.AlertReceiver;
 import com.example.emergencypreparednessmanager.database.Repository;
 import com.example.emergencypreparednessmanager.entities.Kit;
+import com.example.emergencypreparednessmanager.util.NotificationScheduler;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.timepicker.MaterialTimePicker;
-import com.google.android.material.timepicker.TimeFormat;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -34,21 +36,20 @@ public class KitEditActivity extends AppCompatActivity {
     // ------------------- UI -------------------
 
     private MaterialToolbar toolbar;
-    private TextInputEditText editKitName, editLocation, editNotes, notificationTimeText;
+    private TextInputEditText editKitName, editLocation, editNotes;
     private MaterialCheckBox kitNotifyCheckbox;
-    private View notificationTimeLayout;
+    private View frequencyLayout;
+    private MaterialAutoCompleteTextView frequencyDropdown;
     private MaterialButton btnSaveKit;
-
-    // ------------------- NOTIFICATION TIME -------------------
-
-    private Integer selectedHour = null;
-    private Integer selectedMinute = null;
 
     // ------------------- DATA -------------------
 
     private Repository repository;
     private Kit currentKit;
     private int kitID = -1;
+
+    // Stored as the DB-friendly value: "MONTHLY", "QUARTERLY", "YEARLY"
+    private String selectedFrequency = null;
 
     // ------------------- LIFECYCLE -------------------
 
@@ -68,7 +69,8 @@ public class KitEditActivity extends AppCompatActivity {
         bindViews();
         setupInsets();
         setupToolbar();
-        setupNotificationTime();
+        setupFrequencyDropdown();
+        setupNotificationsSection();
         setupSaveButton();
 
         if (kitID != -1) {
@@ -92,13 +94,13 @@ public class KitEditActivity extends AppCompatActivity {
         editNotes = findViewById(R.id.notesText);
 
         kitNotifyCheckbox = findViewById(R.id.kitNotifyCheckbox);
-        notificationTimeLayout = findViewById(R.id.kitNotificationTimeLayout);
-        notificationTimeText = findViewById(R.id.kitNotificationTimeText);
+        frequencyLayout = findViewById(R.id.kitFrequencyLayout);
+        frequencyDropdown = findViewById(R.id.kitFrequencyDropdown);
 
         btnSaveKit = findViewById(R.id.btnSaveKit);
 
-        // Hide time picker row until checkbox is checked
-        notificationTimeLayout.setVisibility(View.GONE);
+        // Hidden until checkbox checked
+        frequencyLayout.setVisibility(View.GONE);
     }
 
     /**
@@ -124,19 +126,41 @@ public class KitEditActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
     }
 
-    private void setupNotificationTime() {
+    private void setupFrequencyDropdown() {
+        // These are the user-visible labels in the dropdown
+        String[] display = new String[]{
+                getString(R.string.frequency_monthly),
+                getString(R.string.frequency_quarterly),
+                getString(R.string.frequency_yearly)
+        };
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_list_item_1,
+                display
+        );
+
+        frequencyDropdown.setAdapter(adapter);
+
+        // Force dropdown on tap
+        frequencyDropdown.setOnClickListener(v -> frequencyDropdown.showDropDown());
+
+        frequencyDropdown.setOnItemClickListener((parent, view, position, id) -> {
+            if (position == 0) selectedFrequency = "MONTHLY";
+            else if (position == 1) selectedFrequency = "QUARTERLY";
+            else if (position == 2) selectedFrequency = "YEARLY";
+        });
+    }
+
+    private void setupNotificationsSection() {
         kitNotifyCheckbox.setOnCheckedChangeListener(((buttonView, isChecked) -> {
-            notificationTimeLayout.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            frequencyLayout.setVisibility(isChecked ? View.VISIBLE : View.GONE);
 
-            // If they just enabled it and no time was chosen yet, default to 09:00
-            if (isChecked && selectedHour == null && selectedMinute == null) {
-                selectedHour = 9;
-                selectedMinute = 0;
-                notificationTimeText.setText(formatTime(selectedHour, selectedMinute));
-            }
+            // TODO: Is this where a Toast should go? Or some better validation?
+            // Do not autofill. Force user selection when enabled
+            selectedFrequency = null;
+            frequencyDropdown.setText("", false);
         }));
-
-        notificationTimeText.setOnClickListener(v -> showTimePicker());
     }
 
     private void setupSaveButton() {
@@ -157,13 +181,47 @@ public class KitEditActivity extends AppCompatActivity {
 
             kitNotifyCheckbox.setChecked(kit.isNotificationsEnabled());
 
+            String freq = kit.getNotificationFrequency();
+
+            selectedFrequency = (freq != null && !freq.trim().isEmpty())
+                    ? freq.trim().toUpperCase(Locale.US)
+                    : null;
+
+            kitNotifyCheckbox.setChecked(kit.isNotificationsEnabled());
+
             if (kit.isNotificationsEnabled()) {
-                notificationTimeLayout.setVisibility(View.VISIBLE);
-                selectedHour = kit.getNotifyHour();
-                selectedMinute = kit.getNotifyMinute();
-                notificationTimeText.setText(formatTime(selectedHour, selectedMinute));
+                frequencyLayout.setVisibility(View.VISIBLE);
+
+                // Only show the saved value
+                if (selectedFrequency != null) {
+                    syncFrequencyDropdown(selectedFrequency);
+                } else {
+                    frequencyDropdown.setText("", false);
+                }
             }
         });
+    }
+
+    private void syncFrequencyDropdown(String freq) {
+        if (freq == null) return;
+
+        switch (freq) {
+            case "MONTHLY":
+                frequencyDropdown.setText(getString(R.string.frequency_monthly), false);
+                break;
+            case "QUARTERLY":
+                frequencyDropdown.setText(getString(R.string.frequency_quarterly), false);
+                break;
+            case "YEARLY":
+                frequencyDropdown.setText(getString(R.string.frequency_yearly), false);
+                break;
+            default:
+                // TODO: Should there be a Toast? Should it default to a month?
+                // Unknown value: keep blank and force re-select
+                selectedFrequency = null;
+                frequencyDropdown.setText("", false);
+                break;
+        }
     }
 
     // ------------------- SAVE -------------------
@@ -175,6 +233,7 @@ public class KitEditActivity extends AppCompatActivity {
         String name = Objects.requireNonNull(editKitName.getText()).toString().trim();
         String location = Objects.requireNonNull(editLocation.getText()).toString().trim();
         String notes = Objects.requireNonNull(editNotes.getText()).toString().trim();
+
         boolean notificationsEnabled = kitNotifyCheckbox.isChecked();
 
         if (name.isEmpty()) {
@@ -184,17 +243,25 @@ public class KitEditActivity extends AppCompatActivity {
             return;
         }
 
-        int hour = selectedHour != null ? selectedHour : 9;
-        int minute = selectedMinute != null ? selectedMinute : 0;
+        if (notificationsEnabled && (selectedFrequency == null || selectedFrequency.trim().isEmpty())) {
+            showToast(getString(R.string.frequency_required));
+            btnSaveKit.setEnabled(true);
+            kitNotifyCheckbox.setEnabled(true);
+            return;
+        }
+
+        final String freqToSave = notificationsEnabled ? selectedFrequency : null;
 
         if (kitID == -1) {
             // Create new kit, then navigate to items screen
-            Kit newKit = new Kit(name, location, notes, notificationsEnabled, hour, minute);
+            Kit newKit = new Kit(name, location, notes, notificationsEnabled, freqToSave);
 
             repository.insert(newKit, newId -> {
                 kitID = newId.intValue();
                 newKit.setKitID(kitID);
                 currentKit = newKit;
+
+                applyKitNotificationSchedule(newKit);
 
                 showToast(getString(R.string.kit_added));
 
@@ -202,46 +269,45 @@ public class KitEditActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, KitItemsActivity.class);
                 intent.putExtra(KitItemsActivity.EXTRA_KIT_ID, kitID);
                 intent.putExtra(KitItemsActivity.EXTRA_KIT_NAME, newKit.getKitName());
-
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-
                 startActivity(intent);
-
                 finish();
             });
 
         } else {
             // Update existing kit
-            Kit updated = new Kit(kitID, name, location, notes, notificationsEnabled, hour, minute);
+            Kit updated = new Kit(kitID, name, location, notes, notificationsEnabled, freqToSave);
 
             repository.update(updated, () -> {
+                currentKit = updated;
+                applyKitNotificationSchedule(updated);
                 showToast(getString(R.string.kit_updated));
                 finish();
             });
         }
     }
 
-    // ------------------- TIME PICKER -------------------
+    private void applyKitNotificationSchedule(Kit kit) {
+        int requestCode = NotificationScheduler.generateRequestCode(String.valueOf(kit.getKitID()), "KIT");
 
-    private void showTimePicker() {
-        MaterialTimePicker picker = new MaterialTimePicker.Builder()
-                .setTimeFormat(TimeFormat.CLOCK_24H)
-                .setHour(selectedHour != null ? selectedHour : 9)
-                .setMinute(selectedMinute != null ? selectedMinute : 0)
-                .setTitleText(getString(R.string.select_notification_time))
-                .build();
+        // Always cancel first to avoid duplicate PendingIntents when toggling frequency
+        NotificationScheduler.cancel(this, AlertReceiver.class, requestCode);
 
-        picker.addOnPositiveButtonClickListener(view -> {
-            selectedHour = picker.getHour();
-            selectedMinute = picker.getMinute();
-            notificationTimeText.setText(formatTime(selectedHour, selectedMinute));
-        });
+        if (!kit.isNotificationsEnabled()) return;
 
-        picker.show(getSupportFragmentManager(), "time_picker");
-    }
+        String freq = kit.getNotificationFrequency();
+        if (freq == null || freq.trim().isEmpty()) return;
 
-    private String formatTime(int hour, int minute) {
-        return String.format(Locale.US, "%02d:%02d", hour, minute);
+        String title = getString(R.string.kit_notification_title, kit.getKitName());
+        String message = getString(R.string.kit_notification_message, kit.getKitName());
+
+        NotificationScheduler.scheduleKitFrequency(
+                this,
+                AlertReceiver.class,
+                title,
+                message,
+                freq,
+                requestCode
+        );
     }
 
     // ------------------- TOAST -------------------

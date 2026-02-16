@@ -3,6 +3,7 @@ package com.example.emergencypreparednessmanager.UI.activities;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
@@ -10,12 +11,15 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.emergencypreparednessmanager.R;
+import com.example.emergencypreparednessmanager.UI.receivers.AlertReceiver;
 import com.example.emergencypreparednessmanager.database.Repository;
 import com.example.emergencypreparednessmanager.entities.Category;
 import com.example.emergencypreparednessmanager.entities.KitItem;
+import com.example.emergencypreparednessmanager.util.NotificationScheduler;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -29,14 +33,22 @@ import java.util.TimeZone;
 
 public class KitItemEditActivity extends AppCompatActivity {
 
+    // ------------------- CONSTANTS -------------------
+
     public static final String EXTRA_KIT_ID = "kitID";
     public static final String EXTRA_ITEM_ID = "itemID";
 
+    // ------------------- UI -------------------
+
     private MaterialToolbar toolbar;
 
-    private TextInputEditText itemNameText, quantityText, expirationText, notesText;
+    private TextInputEditText itemNameText, quantityText, expirationText, notesText, editNotifyDaysBefore;
     private MaterialAutoCompleteTextView categoryDropdown;
+    private MaterialSwitch switchExpirationReminders, switchNotifyOnZero;
+    private View daysBeforeLayout;
     private MaterialButton btnSaveItem;
+
+    // ------------------- DATA -------------------
 
     private Repository repository;
 
@@ -46,6 +58,8 @@ public class KitItemEditActivity extends AppCompatActivity {
     private List<Category> categories = new ArrayList<>();
     private ArrayAdapter<String> categoryAdapter;
     private int selectedCategoryId = -1;
+
+    // ------------------- LIFECYCLE -------------------
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +81,7 @@ public class KitItemEditActivity extends AppCompatActivity {
         setupToolbar();
         setupCategoryDropdown();
         setupExpirationPicker();
+        setupReminderUi();
         setupButtons();
 
         loadCategories(() -> {
@@ -79,6 +94,8 @@ public class KitItemEditActivity extends AppCompatActivity {
         });
     }
 
+    // ------------------- SETUP -------------------
+
     private void bindViews() {
         toolbar = findViewById(R.id.toolbar);
 
@@ -88,12 +105,24 @@ public class KitItemEditActivity extends AppCompatActivity {
         expirationText = findViewById(R.id.expirationText);
         notesText = findViewById(R.id.notesText);
 
+        switchExpirationReminders = findViewById(R.id.switchExpirationReminders);
+        daysBeforeLayout = findViewById(R.id.daysBeforeLayout);
+        editNotifyDaysBefore = findViewById(R.id.editNotifyDaysBefore);
+        switchNotifyOnZero = findViewById(R.id.switchNotifyOnZero);
+
         btnSaveItem = findViewById(R.id.btnSaveItem);
+
+        // Default: hidden unless switch on
+        daysBeforeLayout.setVisibility(View.GONE);
     }
 
     private void setupToolbar() {
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
+    }
+
+    private void setupButtons() {
+        btnSaveItem.setOnClickListener(v -> saveItem());
     }
 
     private void setupCategoryDropdown() {
@@ -117,9 +146,23 @@ public class KitItemEditActivity extends AppCompatActivity {
         });
     }
 
-    private void setupButtons() {
-        btnSaveItem.setOnClickListener(v -> saveItem());
+    private void setupExpirationPicker() {
+        expirationText.setOnClickListener(v -> showExpirationDatePicker());
     }
+
+    private void setupReminderUi() {
+        // Keep days-before visible only when expiration reminders enabled
+        switchExpirationReminders.setOnCheckedChangeListener(((buttonView, isChecked) -> {
+            daysBeforeLayout.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+
+            if (!isChecked) {
+                // Clean the input when disabling so we don't save stale values
+                editNotifyDaysBefore.setText("");
+            }
+        }));
+    }
+
+    // ------------------- LOAD -------------------
 
     private void loadCategories(@NonNull Runnable afterLoad) {
         repository.getAllCategories(list -> {
@@ -134,12 +177,6 @@ public class KitItemEditActivity extends AppCompatActivity {
             categoryAdapter.clear();
             categoryAdapter.addAll(names);
             categoryAdapter.notifyDataSetChanged();
-
-            // New item: leave blank and force user to choose
-            if (itemID != -1) {
-                selectedCategoryId = -1;
-                categoryDropdown.setText("", false);
-            }
 
             afterLoad.run();
         });
@@ -156,6 +193,18 @@ public class KitItemEditActivity extends AppCompatActivity {
 
             selectedCategoryId = item.getCategoryID();
             syncDropdownToCategoryId(selectedCategoryId);
+
+            // Restore reminder UI from entity
+            switchExpirationReminders.setChecked(item.isExpirationRemindersEnabled());
+            if (item.isExpirationRemindersEnabled()) {
+                daysBeforeLayout.setVisibility(View.VISIBLE);
+                editNotifyDaysBefore.setText(String.valueOf(item.getNotifyDaysBefore()));
+            } else {
+                daysBeforeLayout.setVisibility(View.GONE);
+                editNotifyDaysBefore.setText("");
+            }
+
+            switchNotifyOnZero.setChecked(item.isNotifyOnZero());
         });
     }
 
@@ -167,6 +216,8 @@ public class KitItemEditActivity extends AppCompatActivity {
             }
         }
     }
+
+    // ------------------- CATEGORY DIALOG -------------------
 
     private void showAddCategoryDialog() {
         TextInputLayout layout = new TextInputLayout(this);
@@ -190,7 +241,6 @@ public class KitItemEditActivity extends AppCompatActivity {
                     Category category = new Category(name);
 
                     repository.insert(category, newId -> {
-
                         // If IGNORE hit because name already exists
                         if (newId == -1L) {
                             showToast(getString(R.string.category_already_exists));
@@ -208,9 +258,7 @@ public class KitItemEditActivity extends AppCompatActivity {
                 }).show();
     }
 
-    private void setupExpirationPicker() {
-        expirationText.setOnClickListener(v -> showExpirationDatePicker());
-    }
+    // ------------------- DATE PICKER -------------------
 
     private void showExpirationDatePicker() {
         MaterialDatePicker<Long> picker =
@@ -227,6 +275,8 @@ public class KitItemEditActivity extends AppCompatActivity {
 
         picker.show(getSupportFragmentManager(), "EXP_DATE");
     }
+
+    // ------------------- SAVE -------------------
 
     private void saveItem() {
         btnSaveItem.setEnabled(false);
@@ -258,9 +308,27 @@ public class KitItemEditActivity extends AppCompatActivity {
             return;
         }
 
-        boolean notificationsEnabled = false;
-        int notifyHour = 9;
-        int notifyMinute = 0;
+        // Read reminder UI.
+        boolean expEnabled = switchExpirationReminders.isChecked();
+        int daysBefore = 0;
+
+        if (expEnabled) {
+            if (TextUtils.isEmpty(exp)) {
+                showToast(getString(R.string.expiration_required_for_reminder));
+                btnSaveItem.setEnabled(true);
+                return;
+            }
+
+            try {
+                daysBefore = readDaysBefore();
+            } catch (IllegalArgumentException e) {
+                showToast(e.getMessage());
+                btnSaveItem.setEnabled(true);
+                return;
+            }
+        }
+
+        boolean zeroEnabled = switchNotifyOnZero.isChecked();
 
         if (itemID == -1) {
             KitItem newItem = new KitItem(
@@ -270,12 +338,15 @@ public class KitItemEditActivity extends AppCompatActivity {
                     selectedCategoryId,
                     exp,
                     notes,
-                    notificationsEnabled,
-                    notifyHour,
-                    notifyMinute
+                    expEnabled,
+                    daysBefore,
+                    zeroEnabled
             );
 
             repository.insert(newItem, id -> {
+                // Need the generated ID for a stable requestCode
+                newItem.setItemID(id.intValue());
+                applyItemNotificationSchedule(newItem);
                 showToast(getString(R.string.item_added));
                 finish();
             });
@@ -288,23 +359,82 @@ public class KitItemEditActivity extends AppCompatActivity {
                     selectedCategoryId,
                     exp,
                     notes,
-                    notificationsEnabled,
-                    notifyHour,
-                    notifyMinute
+                    expEnabled,
+                    daysBefore,
+                    zeroEnabled
             );
 
             repository.update(updated, () -> {
+                applyItemNotificationSchedule(updated);
                 showToast(getString(R.string.item_updated));
                 finish();
             });
         }
     }
 
+    private int readDaysBefore() {
+        String s = textOf(editNotifyDaysBefore);
+        if (TextUtils.isEmpty(s)) return 0;
+        try {
+            int v = Integer.parseInt(s);
+            if (v < 0) throw new NumberFormatException();
+            return v;
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(getString(R.string.days_before_invalid));
+        }
+    }
+
+    // ------------------- NOTIFICATIONS -------------------
+
+    private void applyItemNotificationSchedule(KitItem item) {
+        // Expiration reminder
+        int expCode = NotificationScheduler.generateRequestCode(String.valueOf(item.getItemID()), "ITEM_EXP");
+        NotificationScheduler.cancel(this, AlertReceiver.class, expCode);
+
+        if (item.isExpirationRemindersEnabled()) {
+            String expDate = item.getExpirationDate();
+
+            // Fire date is expDate minus notifyDaysBefore
+            String fireDate = NotificationScheduler.subtractDays(expDate, Math.max(0, item.getNotifyDaysBefore()));
+
+            if (!TextUtils.isEmpty(fireDate)) {
+                String title = getString(R.string.item_expiration_title, item.getItemName());
+                String message = getString(R.string.item_expiration_message, item.getItemName(), expDate);
+
+                // hour/minute null = use global time from Settings
+                NotificationScheduler.schedule(
+                        this,
+                        AlertReceiver.class,
+                        title,
+                        message,
+                        fireDate,
+                        expCode,
+                        null,
+                        null
+                );
+            }
+        }
+
+        // Notify-on-zero
+        int zeroCode = NotificationScheduler.generateRequestCode(String.valueOf(item.getItemID()), "ITEM_ZERO");
+        NotificationScheduler.cancel(this, AlertReceiver.class, zeroCode);
+
+        // You can’t schedule "when it becomes zero" in advance.
+        // Best you can do is trigger when saving an item that is already zero.
+        if (item.isNotifyOnZero() && item.getQuantity() <= 0) {
+            String title = getString(R.string.item_zero_title, item.getItemName());
+            String message = getString(R.string.item_zero_message, item.getItemName());
+
+            long trigger = System.currentTimeMillis() + 10_000L;
+            NotificationScheduler.scheduleAtMillis(this, AlertReceiver.class, title, message, trigger, zeroCode);
+        }
+    }
+
+    // ------------------- UTIL -------------------
+
     private String textOf(TextInputEditText editText) {
         return editText.getText() == null ? "" : editText.getText().toString().trim();
     }
-
-    // ------------------- TOAST -------------------
 
     private void showToast(String message) {
         Toast.makeText(this, message, message.length() >= 30 ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT).show();

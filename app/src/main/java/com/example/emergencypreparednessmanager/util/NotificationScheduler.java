@@ -4,7 +4,6 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -16,13 +15,13 @@ import java.util.Locale;
 
 /**
  * Utility class for scheduling and cancelling INEXACT notifications.
- *
+ * <p>
  * One-time notifications:
  * - Uses AlarmManager#setWindow(...) so the system can batch alarms.
- *
+ * <p>
  * Repeating notifications:
  * - Uses AlarmManager#setInexactRepeating(...)
- *
+ * <p>
  * Date strings are expected in "MM/dd/yyyy".
  */
 public class NotificationScheduler {
@@ -41,7 +40,6 @@ public class NotificationScheduler {
     private static final int DEFAULT_MINUTE = 0;
 
     // Window size for inexact "one-time" alarms (system can fire anytime in this window)
-    // 15 minutes is a reasonable batching window.
     private static final long ONE_TIME_WINDOW_MILLIS = 15L * 60L * 1000L;
 
     // ------------------- LOGGING -------------------
@@ -101,7 +99,7 @@ public class NotificationScheduler {
                 .getInt(KEY_MINUTE, DEFAULT_MINUTE);
     }
 
-    // ------------------- SCHEDULE -------------------
+    // ------------------- SCHEDULE (DATE STRING) -------------------
 
     /**
      * Schedules a one-time INEXACT notification for a specific date ("MM/dd/yyyy") at hour/minute.
@@ -148,7 +146,16 @@ public class NotificationScheduler {
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
 
-        scheduleAtMillis(context, receiver, title, message, calendar.getTimeInMillis(), requestCode);
+        long triggerAt = calendar.getTimeInMillis();
+
+        // If the chosen time is in the past, bump to next global trigger time
+        long now = System.currentTimeMillis();
+        if (triggerAt <= now) {
+            log("Requested trigger time is in the past. Bumping to nextGlobalTriggerMillis().");
+            triggerAt = nextGlobalTriggerMillis(context);
+        }
+
+        scheduleAtMillis(context, receiver, title, message, triggerAt, requestCode);
     }
 
     // ------------------- SCHEDULE (MILLIS) -------------------
@@ -164,7 +171,7 @@ public class NotificationScheduler {
                                         long triggerAtMillis,
                                         int requestCode
     ) {
-        log("Attempting schedule(millis): requestCode=" + requestCode + ", triggerAtMillis="
+        log("Attempting scheduleAtMillis: requestCode=" + requestCode + ", triggerAtMillis="
                 + triggerAtMillis);
 
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -190,7 +197,7 @@ public class NotificationScheduler {
 
     /**
      * Schedules a repeating INEXACT notification every N days, starting at firstTriggerMillis.
-     *
+     * <p>
      * Implementation: setInexactRepeating(...)
      */
     public static void scheduleRepeatingDays(Context context,
@@ -203,6 +210,11 @@ public class NotificationScheduler {
     ) {
         log("Attempting scheduleRepeatingDays: requestCode=" + requestCode +
                 ", intervalDays=" + intervalDays + ", firstTriggerMillis=" + firstTriggerMillis);
+
+        if (intervalDays <= 0) {
+            log("intervalDays must be > 0. Aborting");
+            return;
+        }
 
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (am == null) {
@@ -235,11 +247,10 @@ public class NotificationScheduler {
                                             String frequency,
                                             int requestCode
     ) {
+        String f = (frequency == null) ? "" : frequency.trim().toUpperCase(Locale.US);
+
         int intervalDays;
-        switch (frequency) {
-            case "MONTHLY":
-                intervalDays = 30;
-                break;
+        switch (f) {
             case "QUARTERLY":
                 intervalDays = 90;
                 break;
@@ -309,16 +320,17 @@ public class NotificationScheduler {
             return;
         }
 
-        Intent intent = new Intent(context, receiver);
+        // Must match the original PendingIntent: same receiver & requestCode
         PendingIntent pi = PendingIntent.getBroadcast(
                 context,
                 requestCode,
-                intent,
+                new Intent(context, receiver),
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
         am.cancel(pi);
-        log("Cancelling alarm requestCode=" + requestCode);
+        pi.cancel();
+        log("Cancelled alarm requestCode=" + requestCode);
     }
 
     // ------------------- PRIVATE HELPERS -------------------
