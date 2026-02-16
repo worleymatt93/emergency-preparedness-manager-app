@@ -29,4 +29,7 @@ public interface CategoryDAO {
 
     @Query("SELECT * FROM Categories ORDER BY categoryName ASC")
     List<Category> getAllCategories();
+
+    @Query("SELECT COUNT(*) FROM Categories")
+    int countCategories();
 }

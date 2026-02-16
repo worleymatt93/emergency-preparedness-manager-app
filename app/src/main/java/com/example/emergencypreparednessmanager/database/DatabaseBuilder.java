@@ -19,10 +19,11 @@ import com.example.emergencypreparednessmanager.entities.KitItem;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Kit.class, KitItem.class, Category.class}, version = 6, exportSchema = false)
+@Database(entities = {Kit.class, KitItem.class, Category.class}, version = 14, exportSchema = false)
 public abstract class DatabaseBuilder extends RoomDatabase {
 
     private static final String TAG = "DatabaseBuilder";
+    private static final String DB_NAME = "EmergencyPreparedness.db";
     private static volatile DatabaseBuilder INSTANCE;
     private static final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
@@ -34,27 +35,38 @@ public abstract class DatabaseBuilder extends RoomDatabase {
 
     // ------------------- SINGLETON GETTER -------------------
 
-    static DatabaseBuilder getDatabase(final Context context) {
+    /**
+     * Returns the singleton Room database instance.
+     * Uses double-checked locking for thread safety.
+     */
+    public static DatabaseBuilder getDatabase(final Context context) {
         if (INSTANCE == null) {
             synchronized (DatabaseBuilder.class) {
                 if (INSTANCE == null) {
-
                     Log.d(TAG, "Building Database instance");
 
                     INSTANCE = Room.databaseBuilder(
                                     context.getApplicationContext(),
                                     DatabaseBuilder.class,
-                                    "EmergencyPreparedness.db"
+                                    DB_NAME
                             )
                             .fallbackToDestructiveMigration()
                             .addCallback(new RoomDatabase.Callback() {
+
                                 @Override
                                 public void onCreate(@NonNull SupportSQLiteDatabase db) {
                                     super.onCreate(db);
                                     Log.d(TAG, "Database CREATED");
 
                                     // Seed default categories on first creation
-                                    databaseExecutor.execute(() -> seedDefaultCategories(context));
+                                    databaseExecutor.execute(() -> ensureDefaultCategories(INSTANCE));
+                                }
+
+                                @Override
+                                public void onOpen(@NonNull SupportSQLiteDatabase db) {
+                                    super.onOpen(db);
+
+                                    databaseExecutor.execute(() -> ensureDefaultCategories(INSTANCE));
                                 }
 
                                 @Override
@@ -70,19 +82,33 @@ public abstract class DatabaseBuilder extends RoomDatabase {
         return INSTANCE;
     }
 
-    private static void seedDefaultCategories(Context context) {
+    // ------------------- SEEDING -------------------
+
+    private static void ensureDefaultCategories(DatabaseBuilder db) {
+        if (db == null) {
+            Log.e(TAG, "ensureDefaultCategories called with null db");
+            return;
+        }
+
         try {
-            DatabaseBuilder db = getDatabase(context);
             CategoryDAO dao = db.categoryDAO();
 
-            dao.insert(new Category("Water"));
-            dao.insert(new Category("Food"));
-            dao.insert(new Category("Medical"));
-            dao.insert(new Category("Tools"));
-            dao.insert(new Category("Power"));
-            dao.insert(new Category("Documents"));
-            dao.insert(new Category("Clothing"));
-            dao.insert(new Category("Hygiene"));
+            int count = dao.countCategories();
+            if (count > 0) {
+                Log.d(TAG, "Categories already exist (" + count + "). Skipping seed.");
+                return;
+            }
+
+            db.runInTransaction(() -> {
+                dao.insert(new Category("Water"));
+                dao.insert(new Category("Food"));
+                dao.insert(new Category("Medical"));
+                dao.insert(new Category("Tools"));
+                dao.insert(new Category("Power"));
+                dao.insert(new Category("Documents"));
+                dao.insert(new Category("Clothing"));
+                dao.insert(new Category("Hygiene"));
+            });
 
             Log.d(TAG, "Default categories SEEDED");
         } catch (Exception e) {
@@ -90,4 +116,3 @@ public abstract class DatabaseBuilder extends RoomDatabase {
         }
     }
 }
-
