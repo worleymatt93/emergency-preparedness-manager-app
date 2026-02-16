@@ -122,24 +122,31 @@ public class Repository {
         });
     }
 
-    /**
-     * Deletes a kit only if it has no associated items.
-     *
-     * @param kit       Kit to delete
-     * @param callback  receives true if deleted, false if blocked
-     */
-    public void deleteKitIfNoItems(Kit kit, Consumer<Boolean> callback) {
+    public void getKitsWithNotificationsEnabled(Consumer<List<Kit>> callback) {
         databaseExecutor.execute(() -> {
+            List<Kit> kits = mKitDAO.getKitsWithNotificationsEnabled();
+            mainHandler.post(() -> callback.accept(kits));
+        });
+    }
 
-            List<KitItem> items = mKitItemDAO.getItemsForKit(kit.getKitID());
+    public void getKitsByFrequency(String frequency, Consumer<List<Kit>> callback) {
+        databaseExecutor.execute(() -> {
+            List<Kit> kits = mKitDAO.getKitsByFrequency(frequency);
+            mainHandler.post(() -> callback.accept(kits));
+        });
+    }
 
-            if (items != null && !items.isEmpty()) {
-                mainHandler.post(() -> callback.accept(false));
-                return;
-            }
+    public void countItemsForKit(int kitID, Consumer<Integer> callback) {
+        databaseExecutor.execute(() -> {
+            int count = mKitItemDAO.countItemsForKit(kitID);
+            mainHandler.post(() -> callback.accept(count));
+        });
+    }
 
-            mKitDAO.delete(kit);
-            mainHandler.post(() -> callback.accept(true));
+    public void getKitIdsThatHaveItems(Consumer<List<Integer>> callback) {
+        databaseExecutor.execute(() -> {
+            List<Integer> ids = mKitItemDAO.getKitIdsThatHaveItems();
+            mainHandler.post(() -> callback.accept(ids));
         });
     }
 
@@ -197,6 +204,41 @@ public class Repository {
         databaseExecutor.execute(() -> {
             mKitItemDAO.delete(item);
             if (callback != null) mainHandler.post(callback);
+        });
+    }
+
+    public void getItemsWithExpirationRemindersEnabled(Consumer<List<KitItem>> callback) {
+        databaseExecutor.execute(() -> {
+            List<KitItem> items = mKitItemDAO.getItemsWithExpirationRemindersEnabled();
+            mainHandler.post(() -> callback.accept(items));
+        });
+    }
+
+    public void getItemsWithNotifyOnZeroEnabled(Consumer<List<KitItem>> callback) {
+        databaseExecutor.execute(() -> {
+            List<KitItem> items = mKitItemDAO.getItemsWithNotifyOnZeroEnabled();
+            mainHandler.post(() -> callback.accept(items));
+        });
+    }
+
+    public void getZeroQuantityItemsNeedingNotification(Consumer<List<KitItem>> callback) {
+        databaseExecutor.execute(() -> {
+            List<KitItem> items = mKitItemDAO.getZeroQuantityItemsNeedingNotification();
+            mainHandler.post(() -> callback.accept(items));
+        });
+    }
+
+    public void updateItemQuantity(int itemID, int newQuantity, Runnable callback) {
+        databaseExecutor.execute(() -> {
+            mKitItemDAO.updateQuantity(itemID, newQuantity);
+            if (callback != null) mainHandler.post(callback);
+        });
+    }
+
+    public void adjustItemQuantity(int itemID, int delta, Consumer<KitItem> callback) {
+        databaseExecutor.execute(() -> {
+            KitItem updated = mKitItemDAO.adjustQuantityAndGet(itemID, delta);
+            mainHandler.post(() -> callback.accept(updated));
         });
     }
 

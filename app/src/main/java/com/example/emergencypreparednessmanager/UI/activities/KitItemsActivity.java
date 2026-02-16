@@ -19,8 +19,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.emergencypreparednessmanager.R;
 import com.example.emergencypreparednessmanager.UI.adapters.KitItemAdapter;
+import com.example.emergencypreparednessmanager.UI.receivers.AlertReceiver;
 import com.example.emergencypreparednessmanager.database.Repository;
 import com.example.emergencypreparednessmanager.entities.KitItem;
+import com.example.emergencypreparednessmanager.util.NotificationScheduler;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -105,16 +107,21 @@ public class KitItemsActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        adapter = new KitItemAdapter(this);
+        adapter = new KitItemAdapter(this, (itemId, delta) ->
+                repository.adjustItemQuantity(itemId, delta, updatedItem -> {
+            if (updatedItem != null) {
+                adapter.replaceItem(updatedItem);
+            } else {
+                loadItems();
+            }
+        }));
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
-
         attachSwipeToDelete();
     }
 
     /**
      * Attaches swipe-to-delete behavior to the kits RecyclerView.
-     * Prevents deletion if the kit contains items.
      * Displays an undo SnackBar before permanently deleting a kit.
      */
     private void attachSwipeToDelete() {
@@ -147,35 +154,44 @@ public class KitItemsActivity extends AppCompatActivity {
                 adapter.getItems().remove(position);
                 adapter.notifyItemRemoved(position);
 
-
                 // Show UNDO snackbar
-                Snackbar.make(recyclerView, "Item removed", Snackbar.LENGTH_LONG)
-                        .setAction("UNDO", v -> {
-
+                Snackbar.make(recyclerView, R.string.item_removed, Snackbar.LENGTH_LONG)
+                        .setAction(R.string.undo, v -> {
                             // Restore item in adapter
                             adapter.getItems().add(position, item);
                             adapter.notifyItemInserted(position);
                             recyclerView.scrollToPosition(position);
-
-                            showToast("Item restored");
-
-                        }).addCallback(new Snackbar.Callback() {
+                            showToast(getString(R.string.item_restored));
+                        })
+                        .addCallback(new Snackbar.Callback() {
                             @Override
                             public void onDismissed(Snackbar transientBottomBar, int event) {
                                 if (event != DISMISS_EVENT_ACTION) {
+                                    // Cancel any scheduled notifications for this item before deleting
+                                    cancelItemNotifications(item);
+
                                     // Snackbar dismissed without UNDO; commit deletion to DB
                                     repository.delete(item, () -> {
-                                        showToast("Item deleted");
+                                        showToast(getString(R.string.item_deleted));
                                         loadItems();
                                     });
                                 }
                             }
-                        }).show();
-                }
-            };
+                        })
+                        .show();
+            }
+        };
 
-            new ItemTouchHelper(callback).attachToRecyclerView(recyclerView);
-        }
+        new ItemTouchHelper(callback).attachToRecyclerView(recyclerView);
+    }
+
+    private void cancelItemNotifications(KitItem item) {
+        int expCode = NotificationScheduler.generateRequestCode(String.valueOf(item.getItemID()), "ITEM_EXP");
+        NotificationScheduler.cancel(this, AlertReceiver.class, expCode);
+
+        int zeroCode = NotificationScheduler.generateRequestCode(String.valueOf(item.getItemID()), "ITEM_ZERO");
+        NotificationScheduler.cancel(this, AlertReceiver.class, zeroCode);
+    }
 
     private void launchAddItem() {
         Intent intent = new Intent(this, KitItemEditActivity.class);
@@ -186,7 +202,7 @@ public class KitItemsActivity extends AppCompatActivity {
     private void setupFab() {
         fab.setOnClickListener(v -> launchAddItem());
         btnAddFirstItem.setOnClickListener(v -> launchAddItem());
-        }
+    }
 
     private void loadItems() {
         repository.getItemsForKit(kitID, items -> {
@@ -223,8 +239,6 @@ public class KitItemsActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
-
 
     /**
      * Displays a short Toast message.
