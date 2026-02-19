@@ -93,4 +93,26 @@
     <string name="increase_quantity">Increase quantity</string>
     <string name="decrease_quantity">Decrease quantity</string>
     <string name="qty_format_short">Qty: %1$d</string>
+    <string name="search_kits">Search kits</string>
+    <string name="search_items">Search items</string>
+    <string name="no_matching_kits">No matching kits</string>
+    <string name="no_matching_items">No matching items</string>
+    <string name="try_different_search">Try a different search term.</string>
+    <string name="type_to_search">Type to search</string>
+    <string name="col_item">Item</string>
+    <string name="col_kit">Kit</string>
+    <string name="col_category">Category</string>
+    <string name="col_qty">Qty</string>
+    <string name="header_item">Item</string>
+    <string name="header_kit">Kit</string>
+    <string name="header_category">Category</string>
+    <string name="header_quantity">Qty</string>
+    <string name="placeholder_item">Item name</string>
+    <string name="placeholder_kit">Kit name</string>
+    <string name="placeholder_category">Category</string>
+    <string name="placeholder_quantity">0</string>
+    <plurals name="results_count">
+        <item quantity="one">%d result</item>
+        <item quantity="other">%d results</item>
+    </plurals>
 </resources>
