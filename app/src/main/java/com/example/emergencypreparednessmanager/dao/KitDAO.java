@@ -36,6 +36,12 @@ public interface KitDAO {
     @Query("SELECT * FROM Kits WHERE kitID = :id LIMIT 1")
     Kit getKitByID(int id);
 
+    @Query("SELECT * FROM Kits " +
+            "WHERE kitName LIKE '%' || :query || '%' " +
+            "OR location LIKE '%' || :query || '%' " +
+            "ORDER BY kitName COLLATE NOCASE ASC")
+    List<Kit> searchKits(String query);
+
     // ------------------- NOTIFICATIONS -------------------
 
     @Query("SELECT * FROM Kits WHERE notificationsEnabled = 1 ORDER BY kitID ASC")

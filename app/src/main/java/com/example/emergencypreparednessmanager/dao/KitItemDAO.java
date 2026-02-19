@@ -8,6 +8,7 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
 
+import com.example.emergencypreparednessmanager.database.ItemSearchRow;
 import com.example.emergencypreparednessmanager.entities.KitItem;
 
 import java.util.List;
@@ -70,9 +71,43 @@ public interface KitItemDAO {
 
     @Query("SELECT * FROM KitItems " +
             "WHERE itemName LIKE '%' || :query || '%' " +
-            "OR notes LIKE '%' || :query || '%' " +
+            "OR CAST(quantity AS TEXT) LIKE '%' || :query || '%' " +
+            "OR expirationDate LIKE '%' || :query || '%' " +
             "ORDER BY itemName COLLATE NOCASE ASC")
     List<KitItem> searchItems(String query);
+
+    @Query("SELECT * FROM KitItems " +
+            "WHERE kitID = :kitID AND (" +
+            "itemName LIKE '%' || :query || '%' " +
+            "OR CAST(quantity AS TEXT) LIKE '%' || :query || '%' " +
+            "OR expirationDate LIKE '%' || :query || '%' " +
+            ") " +
+            "ORDER BY itemName COLLATE NOCASE ASC")
+    List<KitItem> searchItemsInKit(int kitID, String query);
+
+    // Global search across ALL items
+    @Query(
+            "SELECT " +
+                    "ki.itemID AS itemID, " +
+                    "ki.kitID AS kitID, " +
+                    "ki.itemName AS itemName, " +
+                    "ki.quantity AS quantity, " +
+                    "ki.expirationDate AS expirationDate, " +
+                    "k.kitName AS kitName, " +
+                    "c.categoryName AS categoryName " +
+                    "FROM KitItems ki " +
+                    "JOIN Kits k ON k.kitID = ki.kitID " +
+                    "LEFT JOIN Categories c ON c.categoryID = ki.categoryID " +
+                    "WHERE (" +
+                    "ki.itemName LIKE '%' || :query || '%' " +
+                    "OR CAST(ki.quantity AS TEXT) LIKE '%' || :query || '%' " +
+                    "OR ki.expirationDate LIKE '%' || :query || '%' " +
+                    "OR k.kitName LIKE '%' || :query || '%' " +
+                    "OR c.categoryName LIKE '%' || :query || '%' " +
+                    ") " +
+                    "ORDER BY ki.itemName COLLATE NOCASE ASC"
+    )
+    List<ItemSearchRow> searchAllItems(String query);
 
     // ------------------- REPORT QUERIES -------------------
 

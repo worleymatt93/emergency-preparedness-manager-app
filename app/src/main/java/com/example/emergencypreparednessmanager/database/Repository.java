@@ -166,6 +166,27 @@ public class Repository {
         });
     }
 
+    public void searchItemsInKit(int kitID, String query, Consumer<List<KitItem>> callback) {
+        databaseExecutor.execute(() -> {
+            List<KitItem> results = mKitItemDAO.searchItemsInKit(kitID, query);
+            mainHandler.post(() -> callback.accept(results));
+        });
+    }
+
+    public void searchKits(String query, Consumer<List<Kit>> callback) {
+        databaseExecutor.execute(() -> {
+            List<Kit> kits = mKitDAO.searchKits(query);
+            mainHandler.post(() -> callback.accept(kits));
+        });
+    }
+
+    public void searchAllItems(String query, Consumer<List<ItemSearchRow>> callback) {
+        databaseExecutor.execute(() -> {
+            List<ItemSearchRow> results = mKitItemDAO.searchAllItems(query);
+            mainHandler.post(() -> callback.accept(results));
+        });
+    }
+
     /**
      * Inserts a kit item asynchronously.
      *
