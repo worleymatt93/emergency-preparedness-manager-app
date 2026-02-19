@@ -24,9 +24,8 @@
         app:title="@string/kits"
         app:titleTextColor="?attr/colorOnPrimaryContainer"
         app:navigationIcon="@drawable/baseline_arrow_back_24"
-        app:menu="@menu/menu_kit_list"
         app:popupTheme="@style/MyToolbarPopupMenu"
-        app:iconTint="?attr/colorOnPrimaryContainer" />
+        app:navigationIconTint="?attr/colorOnPrimaryContainer" />
 
     <!-- =================== KIT LIST =================== -->
 

@@ -17,6 +17,7 @@
         app:title="@string/add_item"
         app:titleTextColor="?attr/colorOnPrimaryContainer"
         app:navigationIcon="@drawable/baseline_arrow_back_24"
+        app:navigationIconTint="?attr/colorOnPrimaryContainer"
         app:popupTheme="@style/MyToolbarPopupMenu"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
