@@ -2,12 +2,15 @@ package com.example.emergencypreparednessmanager.UI.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -25,6 +28,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textview.MaterialTextView;
 
 import java.util.HashSet;
 import java.util.List;
@@ -32,15 +36,21 @@ import java.util.Set;
 
 public class KitListActivity extends AppCompatActivity {
 
-    // ------------------- UI / DATA -------------------
+    // ------------------- UI -------------------
 
     private MaterialToolbar toolbar;
     private RecyclerView recyclerView;
     private View emptyStateLayout;
+    private MaterialTextView emptyTitle, emptySubtitle;
+    private MaterialButton btnCreateFirstKit;
     private FloatingActionButton fab;
+
+    // ------------------- DATA -------------------
 
     private Repository repository;
     private KitAdapter kitAdapter;
+    private List<Kit> fullKitList;
+    private boolean searchExpanded = false;
 
     /**
      * Precomputed set of kits that have at least 1 item.
@@ -58,38 +68,41 @@ public class KitListActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_kit_list);
 
-        toolbar = findViewById(R.id.toolbar);
-        setupToolbar();
-
-        setupInsets();
-        setupRecyclerView();
-
-        emptyStateLayout = findViewById(R.id.emptyStateLayout);
-        MaterialButton btnCreateFirstKit = findViewById(R.id.btnCreateFirstKit);
-
-        btnCreateFirstKit.setOnClickListener(v -> {
-            Intent intent = new Intent(KitListActivity.this, KitEditActivity.class);
-            startActivity(intent);
-        });
-
         repository = new Repository(getApplication());
 
-        setupFab();
+        bindViews();
+        setupToolbar();
+        setupInsets();
+        setupRecyclerView();
+        setupButtons();
+
         loadKits();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        loadKits(); // Refresh list when return to this screen
+        loadKits();
+    }
+
+    // ------------------- BIND / SETUP -------------------
+
+    private void bindViews() {
+        toolbar = findViewById(R.id.toolbar);
+        recyclerView = findViewById(R.id.recyclerView);
+
+        emptyStateLayout = findViewById(R.id.emptyStateLayout);
+        emptyTitle = findViewById(R.id.emptyTitle);
+        emptySubtitle = findViewById(R.id.emptySubtitle);
+        btnCreateFirstKit = findViewById(R.id.btnCreateFirstKit);
+
+        fab = findViewById(R.id.floatingActionButton);
     }
 
     private void setupToolbar() {
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
     }
-
-    // ------------------- SETUP -------------------
 
     /**
      * Applies padding for system bars (status/navigation) to ensure content is not overlapped.
@@ -106,14 +119,90 @@ public class KitListActivity extends AppCompatActivity {
      * Sets up RecyclerView and adapter for displaying kits.
      */
     private void setupRecyclerView() {
-        recyclerView = findViewById(R.id.recyclerView);
-
         kitAdapter = new KitAdapter(this);
-        recyclerView.setAdapter(kitAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
+        recyclerView.setAdapter(kitAdapter);
         attachSwipeToDelete();
     }
+
+    private void setupButtons() {
+        btnCreateFirstKit.setOnClickListener(v -> launchAddKit());
+        fab.setOnClickListener(v -> launchAddKit());
+    }
+
+    private void launchAddKit() {
+        Intent intent = new Intent(this, KitEditActivity.class);
+        startActivity(intent);
+    }
+
+    // ------------------- DATA LOADING -------------------
+
+    private void loadKits() {
+        repository.getAllKits(kits -> {
+            fullKitList = kits; // cache
+            kitAdapter.setKits(kits);
+
+            boolean hasKits = kits != null && !kits.isEmpty();
+            applyListVisibility(hasKits);
+
+            // If search is not open, show the normal empty state and normal buttons
+            if (!searchExpanded) {
+                applyEmptyStateMode(false);
+                fab.setVisibility(hasKits ? View.VISIBLE : View.GONE);
+            } else {
+                // If search IS open and query is empty, we still want "search mode"
+                applyEmptyStateMode(true);
+                fab.setVisibility(View.GONE);
+            }
+
+            precomputeNonDeletableKits(kits);
+        });
+    }
+
+    private void applyListVisibility(boolean showList) {
+        recyclerView.setVisibility(showList ? View.VISIBLE : View.GONE);
+        emptyStateLayout.setVisibility(showList ? View.GONE : View.VISIBLE);
+    }
+
+    /**
+     * Controls what the empty state says and which buttons show.
+     * searching=false: normal empty state ("No kits yet" + create button)
+     * searching=true: search empty state ("No matching kits" + no create button)
+     */
+    private void applyEmptyStateMode(boolean searching) {
+        if (searching) {
+            emptyTitle.setText(R.string.no_matching_kits);
+            emptySubtitle.setText(R.string.try_different_search);
+
+            btnCreateFirstKit.setVisibility(View.GONE);
+            if (fab != null) fab.setVisibility(View.GONE);
+        } else {
+            emptyTitle.setText(R.string.no_kits_yet);
+            emptySubtitle.setText(R.string.create_your_first_kit_to_start_tracking_supplies);
+
+            boolean hasKits = fullKitList != null && !fullKitList.isEmpty();
+            btnCreateFirstKit.setVisibility(hasKits ? View.GONE : View.VISIBLE);
+        }
+    }
+
+    private void precomputeNonDeletableKits(List<Kit> kits) {
+        nonDeletableKitIds.clear();
+        if (kits == null || kits.isEmpty()) return;
+
+        for (Kit kit : kits) {
+            final int kitId = kit.getKitID();
+
+            repository.getItemsForKit(kitId, items -> {
+                if (items != null && !items.isEmpty()) {
+                    nonDeletableKitIds.add(kitId);
+                } else {
+                    nonDeletableKitIds.remove(kitId);
+                }
+            });
+        }
+    }
+
+    // ------------------- SWIPE TO DELETE -------------------
 
     /**
      * Attaches swipe-to-delete behavior to the kits RecyclerView.
@@ -143,7 +232,6 @@ public class KitListActivity extends AppCompatActivity {
 
                 // Cache the kit for possible UNDO
                 Kit kit = kitAdapter.getKits().get(position);
-                int kitId = kit.getKitID();
 
                 // If the kit has items, block immediately
                 if (nonDeletableKitIds.contains(kit.getKitID())) {
@@ -162,7 +250,6 @@ public class KitListActivity extends AppCompatActivity {
                             kitAdapter.getKits().add(position, kit);
                             kitAdapter.notifyItemInserted(position);
                             recyclerView.scrollToPosition(position);
-
                             showToast(getString(R.string.kit_restored));
                         })
                         .addCallback(new Snackbar.Callback() {
@@ -189,55 +276,76 @@ public class KitListActivity extends AppCompatActivity {
         NotificationScheduler.cancel(this, AlertReceiver.class, requestCode);
     }
 
-    /**
-     * Configures the FAB to launch KitDetailsActivity for adding a new kit.
-     */
-    private void setupFab() {
-        fab = findViewById(R.id.floatingActionButton);
-        fab.setOnClickListener(v -> {
-            Intent intent = new Intent(KitListActivity.this, KitEditActivity.class);
-            startActivity(intent);
-        });
-    }
+    // ------------------- SEARCH MENU -------------------
 
-    // ------------------- DATA LOADING -------------------
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_kit_list, menu);
 
-    private void loadKits() {
-        repository.getAllKits(kits -> {
-            boolean hasKits = kits != null && !kits.isEmpty();
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        if (searchItem == null) return true;
 
-            kitAdapter.setKits(kits); // works for both empty and non-empty
+        SearchView searchView = (SearchView) searchItem.getActionView();
+        if (searchView == null) return true;
 
-            recyclerView.setVisibility(hasKits ? View.VISIBLE : View.GONE);
-            emptyStateLayout.setVisibility(hasKits ? View.GONE : View.VISIBLE);
+        searchView.setQueryHint(getString(R.string.search_kits));
 
-            // Hide FAB when empty
-            if (fab != null) {
-                fab.setVisibility(hasKits ? View.VISIBLE : View.GONE);
+        searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(@NonNull MenuItem item) {
+                searchExpanded = true;
+                applyEmptyStateMode(true);
+                // Hide FAB while searching
+                if (fab != null) fab.setVisibility(View.GONE);
+                return true;
             }
 
-            // Precompute which kitIDs have items
-            precomputeNonDeletableKits(kits);
+            @Override
+            public boolean onMenuItemActionCollapse(@NonNull MenuItem item) {
+                searchExpanded = false;
+
+                // Restore full list and normal empty state
+                kitAdapter.setKits(fullKitList);
+                boolean hasKits = fullKitList != null && !fullKitList.isEmpty();
+                applyListVisibility(hasKits);
+
+                applyEmptyStateMode(false);
+                fab.setVisibility(hasKits ? View.VISIBLE : View.GONE);
+
+                return true;
+            }
         });
-    }
 
-    private void precomputeNonDeletableKits(List<Kit> kits) {
-        nonDeletableKitIds.clear();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return true;
+            }
 
-        if (kits == null || kits.isEmpty()) return;
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                String q = (newText == null) ? "" : newText.trim();
 
-        for (Kit kit : kits) {
-            final int kitId = kit.getKitID();
-
-            repository.getItemsForKit(kitId, items -> {
-                if (items != null && !items.isEmpty()) {
-                    nonDeletableKitIds.add(kitId);
+                if (q.isEmpty()) {
+                    // While search is expanded, empty query shows full list
+                    kitAdapter.setKits(fullKitList);
+                    boolean hasKits = fullKitList != null & !fullKitList.isEmpty();
+                    applyListVisibility(hasKits);
                 } else {
-                    nonDeletableKitIds.remove(kitId);
+                    repository.searchKits(q, results -> {
+                        kitAdapter.setKits(results);
+                        boolean hasResults = results != null && !results.isEmpty();
+                        applyListVisibility(hasResults);
+                    });
                 }
-            });
-        }
+
+                return true;
+            }
+        });
+
+        return true;
     }
+
+    // ------------------- UTIL -------------------
 
     /**
      * Displays a short Toast message.
