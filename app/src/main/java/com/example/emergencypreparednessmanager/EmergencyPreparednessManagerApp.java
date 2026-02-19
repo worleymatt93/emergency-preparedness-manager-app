@@ -3,7 +3,6 @@ package com.example.emergencypreparednessmanager;
 import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.os.Build;
 import android.util.Log;
 
 public class EmergencyPreparednessManagerApp extends Application {
@@ -14,13 +13,11 @@ public class EmergencyPreparednessManagerApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-
         Log.d(TAG, "Application onCreate() called");
         createNotificationChannel();
     }
 
     private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
 
         NotificationChannel channel = new NotificationChannel(
                 CHANNEL_ID,
