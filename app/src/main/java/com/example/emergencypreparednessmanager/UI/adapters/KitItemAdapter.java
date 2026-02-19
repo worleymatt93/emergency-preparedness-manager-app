@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -14,6 +13,8 @@ import com.example.emergencypreparednessmanager.R;
 import com.example.emergencypreparednessmanager.UI.activities.KitItemEditActivity;
 import com.example.emergencypreparednessmanager.entities.KitItem;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.color.MaterialColors;
 import com.google.android.material.textview.MaterialTextView;
 
 import java.util.ArrayList;
@@ -26,10 +27,6 @@ import java.util.List;
 public class KitItemAdapter extends RecyclerView.Adapter<KitItemAdapter.KitItemViewHolder> {
 
     public interface OnQuantityChangeListener {
-        /**
-         * Called after the adapter updates the in-memory item quantity.
-         * Persist the change (Room update) in the Activity.
-         */
         void onAdjustQuantity(int itemId, int delta);
     }
 
@@ -39,6 +36,7 @@ public class KitItemAdapter extends RecyclerView.Adapter<KitItemAdapter.KitItemV
     private final LayoutInflater inflater;
     private final OnQuantityChangeListener quantityChangeListener;
     private List<KitItem> items = new ArrayList<>();
+    private int highlightedItemId = -1;
 
     // ------------------- CONSTRUCTOR -------------------
 
@@ -59,7 +57,11 @@ public class KitItemAdapter extends RecyclerView.Adapter<KitItemAdapter.KitItemV
 
     @Override
     public void onBindViewHolder(@NonNull KitItemViewHolder holder, int position) {
-        holder.bind(items.get(position));
+        KitItem item = items.get(position);
+        holder.bind(item);
+
+        boolean highlight = item.getItemID() == highlightedItemId;
+        holder.applyHighlight(highlight);
     }
 
     @Override
@@ -88,9 +90,16 @@ public class KitItemAdapter extends RecyclerView.Adapter<KitItemAdapter.KitItemV
         }
     }
 
+    public void setHighlightedItemId(int itemId) {
+        highlightedItemId = itemId;
+        notifyDataSetChanged();
+    }
+
     // ------------------- VIEW HOLDER -------------------
 
     class KitItemViewHolder extends RecyclerView.ViewHolder {
+
+        private final MaterialCardView card;
 
         private final MaterialTextView itemNameText;
         private final MaterialTextView qtySummary;
@@ -102,6 +111,8 @@ public class KitItemAdapter extends RecyclerView.Adapter<KitItemAdapter.KitItemV
 
         KitItemViewHolder(@NonNull View itemView) {
             super(itemView);
+
+            card = (MaterialCardView) itemView;
 
             itemNameText = itemView.findViewById(R.id.itemNameText);
             qtySummary = itemView.findViewById(R.id.qtySummary);
@@ -154,13 +165,13 @@ public class KitItemAdapter extends RecyclerView.Adapter<KitItemAdapter.KitItemV
 
             int qty = item.getQuantity();
 
-            // Right side summary
+            // Summary at top-right
             qtySummary.setText("Qty: " + qty);
 
-            // Number between the buttons
+            // Quantity between buttons
             quantityText.setText(String.valueOf(qty));
 
-            // Expiration text (left, row 2)
+            // Expiration text
             String exp = item.getExpirationDate();
             String expText = TextUtils.isEmpty(exp)
                     ? context.getString(R.string.no_expiration)
@@ -171,6 +182,22 @@ public class KitItemAdapter extends RecyclerView.Adapter<KitItemAdapter.KitItemV
             // Buttons state
             btnIncrement.setEnabled(true);
             btnDecrement.setEnabled(qty > 0);
+        }
+
+        void applyHighlight(boolean highlight) {
+            if (highlight) {
+                card.setStrokeWidth(dpToPx(2));
+                card.setStrokeColor(MaterialColors.getColor(card, androidx.appcompat.R.attr.colorPrimary));
+            } else {
+                card.setStrokeWidth(dpToPx(1));
+                card.setStrokeColor(MaterialColors.getColor(card, com.google.android.material.R.attr.colorOutline));
+            }
+        }
+
+        // ------------------- HELPERS -------------------
+
+        private int dpToPx(int dp) {
+            return Math.round(dp * context.getResources().getDisplayMetrics().density);
         }
     }
 }
