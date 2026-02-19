@@ -20,6 +20,7 @@
         <activity android:name=".UI.activities.KitItemsActivity" />
         <activity android:name=".UI.activities.KitItemEditActivity" />
         <activity android:name=".UI.activities.SettingsActivity" />
+        <activity android:name=".UI.activities.SearchSuppliesActivity" />
 
         <activity
             android:name=".UI.activities.MainActivity"
