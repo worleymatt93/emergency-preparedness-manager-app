@@ -28,6 +28,9 @@ public class ItemSearchRow {
     @ColumnInfo(name = "categoryName")
     public String categoryName;
 
+    @ColumnInfo(name = "location")
+    public String location;
+
     // ---- Getters ----
 
     public int getItemID() {
@@ -56,5 +59,9 @@ public class ItemSearchRow {
 
     public String getCategoryName() {
         return categoryName;
+    }
+
+    public String getLocation() {
+        return location;
     }
 }

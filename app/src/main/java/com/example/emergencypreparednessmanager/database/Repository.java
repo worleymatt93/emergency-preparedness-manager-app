@@ -303,4 +303,11 @@ public class Repository {
             mainHandler.post(() -> callback.accept(results));
         });
     }
+
+    public void getInventoryReportRows(Consumer<List<ItemSearchRow>> callback) {
+        databaseExecutor.execute(() -> {
+            List<ItemSearchRow> rows = mKitItemDAO.getInventoryReportRows();
+            mainHandler.post(() -> callback.accept(rows));
+        });
+    }
 }

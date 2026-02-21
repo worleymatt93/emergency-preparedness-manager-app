@@ -129,4 +129,21 @@ public interface KitItemDAO {
 
     @Query("SELECT * FROM KitItems WHERE notifyOnZero = 1 AND quantity <= 0 ORDER BY itemID ASC")
     List<KitItem> getZeroQuantityItemsNeedingNotification();
+
+    @Query(
+            "SELECT " +
+                    "ki.itemID AS itemID, " +
+                    "ki.kitID AS kitID, " +
+                    "ki.itemName AS itemName, " +
+                    "ki.quantity AS quantity, " +
+                    "ki.expirationDate AS expirationDate, " +
+                    "k.kitName AS kitName, " +
+                    "k.location AS location, " +
+                    "c.categoryName AS categoryName " +
+                    "FROM KitItems ki " +
+                    "JOIN Kits k ON k.kitID = ki.kitID " +
+                    "LEFT JOIN Categories c ON c.categoryID = ki.categoryID " +
+                    "ORDER BY ki.itemName COLLATE NOCASE ASC, k.kitName COLLATE NOCASE ASC"
+    )
+    List<ItemSearchRow> getInventoryReportRows();
 }
