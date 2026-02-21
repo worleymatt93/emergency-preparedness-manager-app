@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
         MaterialButton btnKits = findViewById(R.id.btnKits);
         MaterialButton btnSearch = findViewById(R.id.btnSearch);
         MaterialButton btnReports = findViewById(R.id.btnReports);
+        MaterialButton btnSettings = findViewById(R.id.btnSettings);
 
         btnKits.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, KitListActivity.class);
@@ -50,13 +51,15 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        /* TODO Create ReportsActivity
         btnReports.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, ReportsActivity.class);
             startActivity(intent);
         });
 
-         */
+        btnSettings.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(intent);
+        });
     }
 
     /**
