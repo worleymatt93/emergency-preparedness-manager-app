@@ -2,7 +2,9 @@ package com.example.emergencypreparednessmanager.UI.activities;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
@@ -42,10 +44,16 @@ public class KitItemEditActivity extends AppCompatActivity {
 
     private MaterialToolbar toolbar;
 
+    private TextInputLayout itemNameLayout;
+    private TextInputLayout quantityLayout;
+    private TextInputLayout categoryLayout;
+    private TextInputLayout expirationLayout;
+    private TextInputLayout daysBeforeLayout;
+    private TextInputLayout notesLayout;
+
     private TextInputEditText itemNameText, quantityText, expirationText, notesText, editNotifyDaysBefore;
     private MaterialAutoCompleteTextView categoryDropdown;
     private MaterialSwitch switchExpirationReminders, switchNotifyOnZero;
-    private View daysBeforeLayout;
     private MaterialButton btnSaveItem;
 
     // ------------------- DATA -------------------
@@ -72,7 +80,7 @@ public class KitItemEditActivity extends AppCompatActivity {
         itemID = getIntent().getIntExtra(EXTRA_ITEM_ID, -1);
 
         if (kitID == -1) {
-            showToast("Missing kit ID");
+            showToast(getString(R.string.missing_kit_id));
             finish();
             return;
         }
@@ -82,6 +90,7 @@ public class KitItemEditActivity extends AppCompatActivity {
         setupCategoryDropdown();
         setupExpirationPicker();
         setupReminderUi();
+        setupFieldBehaviors();
         setupButtons();
 
         loadCategories(() -> {
@@ -99,6 +108,13 @@ public class KitItemEditActivity extends AppCompatActivity {
     private void bindViews() {
         toolbar = findViewById(R.id.toolbar);
 
+        itemNameLayout = findViewById(R.id.itemNameLayout);
+        quantityLayout = findViewById(R.id.quantityLayout);
+        categoryLayout = findViewById(R.id.categoryLayout);
+        expirationLayout = findViewById(R.id.expirationLayout);
+        daysBeforeLayout = findViewById(R.id.daysBeforeLayout);
+        notesLayout = findViewById(R.id.notesLayout);
+
         itemNameText = findViewById(R.id.itemNameText);
         quantityText = findViewById(R.id.quantityText);
         categoryDropdown = findViewById(R.id.categoryDropdown);
@@ -106,7 +122,6 @@ public class KitItemEditActivity extends AppCompatActivity {
         notesText = findViewById(R.id.notesText);
 
         switchExpirationReminders = findViewById(R.id.switchExpirationReminders);
-        daysBeforeLayout = findViewById(R.id.daysBeforeLayout);
         editNotifyDaysBefore = findViewById(R.id.editNotifyDaysBefore);
         switchNotifyOnZero = findViewById(R.id.switchNotifyOnZero);
 
@@ -125,6 +140,30 @@ public class KitItemEditActivity extends AppCompatActivity {
         btnSaveItem.setOnClickListener(v -> saveItem());
     }
 
+    private void setupFieldBehaviors() {
+        itemNameText.addTextChangedListener(clearErrorWatcher(itemNameLayout));
+        quantityText.addTextChangedListener(clearErrorWatcher(quantityLayout));
+        categoryDropdown.addTextChangedListener(clearErrorWatcher(categoryLayout));
+        expirationText.addTextChangedListener(clearErrorWatcher(expirationLayout));
+        editNotifyDaysBefore.addTextChangedListener(clearErrorWatcher(daysBeforeLayout));
+        notesText.addTextChangedListener(clearErrorWatcher(notesLayout));
+    }
+
+    private TextWatcher clearErrorWatcher(TextInputLayout layout) {
+        return new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                layout.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        };
+    }
+
     private void setupCategoryDropdown() {
         categoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<>());
         categoryDropdown.setAdapter(categoryAdapter);
@@ -133,6 +172,8 @@ public class KitItemEditActivity extends AppCompatActivity {
         categoryDropdown.setOnClickListener(v -> categoryDropdown.showDropDown());
 
         categoryDropdown.setOnItemClickListener((parent, view, position, id) -> {
+            categoryLayout.setError(null);
+
             // Last row is "Add category"
             if (position == categories.size()) {
                 showAddCategoryDialog();
@@ -140,8 +181,21 @@ public class KitItemEditActivity extends AppCompatActivity {
             }
 
             if (position >= 0 && position < categories.size()) {
+
+                Category selected = categories.get(position);
+
                 selectedCategoryId = categories.get(position).getCategoryID();
                 categoryDropdown.setText(categories.get(position).getCategoryName(), false);
+
+                // ---- WATER HELPER LOGIC ----
+                String name = selected.getCategoryName();
+
+                if (name != null && name.trim().equalsIgnoreCase("Water")) {
+                    quantityLayout.setHelperText(getString(R.string.water_quantity_helper));
+                } else {
+                    quantityLayout.setHelperText(null);
+                }
+
             }
         });
     }
@@ -154,6 +208,10 @@ public class KitItemEditActivity extends AppCompatActivity {
         // Keep days-before visible only when expiration reminders enabled
         switchExpirationReminders.setOnCheckedChangeListener(((buttonView, isChecked) -> {
             daysBeforeLayout.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+
+            // Clear any prior errors when toggling
+            daysBeforeLayout.setError(null);
+            expirationLayout.setError(null);
 
             if (!isChecked) {
                 // Clean the input when disabling so we don't save stale values
@@ -209,9 +267,18 @@ public class KitItemEditActivity extends AppCompatActivity {
     }
 
     private void syncDropdownToCategoryId(int categoryId) {
-        for (int i = 0; i < categories.size(); i++) {
-            if (categories.get(i).getCategoryID() == categoryId) {
-                categoryDropdown.setText(categories.get(i).getCategoryName(), false);
+        for (Category c : categories) {
+            if (c.getCategoryID() == categoryId) {
+
+                categoryDropdown.setText(c.getCategoryName(), false);
+
+                String name = c.getCategoryName();
+                if (name != null && name.trim().equalsIgnoreCase("Water")) {
+                    quantityLayout.setHelperText(getString(R.string.water_quantity_helper));
+                } else {
+                    quantityLayout.setHelperText(null);
+                }
+
                 return;
             }
         }
@@ -226,6 +293,18 @@ public class KitItemEditActivity extends AppCompatActivity {
         TextInputEditText input = new TextInputEditText(this);
         layout.addView(input);
 
+        input.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                layout.setError(null);
+            }
+            @Override
+            public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        });
+
         new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.add_category))
                 .setView(layout)
@@ -234,7 +313,7 @@ public class KitItemEditActivity extends AppCompatActivity {
                     String name = (input.getText() == null) ? "" : input.getText().toString().trim();
 
                     if (TextUtils.isEmpty(name)) {
-                        showToast(getString(R.string.category_name_required));
+                        layout.setError(getString(R.string.category_name_required));
                         return;
                     }
 
@@ -271,6 +350,7 @@ public class KitItemEditActivity extends AppCompatActivity {
             sdf.setTimeZone(TimeZone.getDefault());
             String date = sdf.format(new Date(selection));
             expirationText.setText(date);
+            expirationLayout.setError(null);
         });
 
         picker.show(getSupportFragmentManager(), "EXP_DATE");
@@ -281,13 +361,21 @@ public class KitItemEditActivity extends AppCompatActivity {
     private void saveItem() {
         btnSaveItem.setEnabled(false);
 
+        // Clear inline errors
+        itemNameLayout.setError(null);
+        quantityLayout.setError(null);
+        categoryLayout.setError(null);
+        expirationLayout.setError(null);
+        daysBeforeLayout.setError(null);
+        notesLayout.setError(null);
+
         String name = textOf(itemNameText);
         String qtyStr = textOf(quantityText);
         String exp = textOf(expirationText);
         String notes = textOf(notesText);
 
         if (TextUtils.isEmpty(name)) {
-            showToast(getString(R.string.item_name_required));
+            itemNameLayout.setError(getString(R.string.item_name_required));
             btnSaveItem.setEnabled(true);
             return;
         }
@@ -297,13 +385,13 @@ public class KitItemEditActivity extends AppCompatActivity {
             qty = TextUtils.isEmpty(qtyStr) ? 1 : Integer.parseInt(qtyStr);
             if (qty <= 0) throw new NumberFormatException();
         } catch (NumberFormatException e) {
-            showToast(getString(R.string.quantity_invalid));
+            quantityLayout.setError(getString(R.string.quantity_invalid));
             btnSaveItem.setEnabled(true);
             return;
         }
 
         if (selectedCategoryId == -1) {
-            showToast(getString(R.string.category_required));
+            categoryLayout.setError(getString(R.string.category_required));
             btnSaveItem.setEnabled(true);
             return;
         }
@@ -314,7 +402,7 @@ public class KitItemEditActivity extends AppCompatActivity {
 
         if (expEnabled) {
             if (TextUtils.isEmpty(exp)) {
-                showToast(getString(R.string.expiration_required_for_reminder));
+                expirationLayout.setError(getString(R.string.expiration_required_for_reminder));
                 btnSaveItem.setEnabled(true);
                 return;
             }
@@ -322,7 +410,7 @@ public class KitItemEditActivity extends AppCompatActivity {
             try {
                 daysBefore = readDaysBefore();
             } catch (IllegalArgumentException e) {
-                showToast(e.getMessage());
+                daysBeforeLayout.setError(e.getMessage());
                 btnSaveItem.setEnabled(true);
                 return;
             }
@@ -393,8 +481,6 @@ public class KitItemEditActivity extends AppCompatActivity {
 
         if (item.isExpirationRemindersEnabled()) {
             String expDate = item.getExpirationDate();
-
-            // Fire date is expDate minus notifyDaysBefore
             String fireDate = NotificationScheduler.subtractDays(expDate, Math.max(0, item.getNotifyDaysBefore()));
 
             if (!TextUtils.isEmpty(fireDate)) {
@@ -419,8 +505,6 @@ public class KitItemEditActivity extends AppCompatActivity {
         int zeroCode = NotificationScheduler.generateRequestCode(String.valueOf(item.getItemID()), "ITEM_ZERO");
         NotificationScheduler.cancel(this, AlertReceiver.class, zeroCode);
 
-        // You can’t schedule "when it becomes zero" in advance.
-        // Best you can do is trigger when saving an item that is already zero.
         if (item.isNotifyOnZero() && item.getQuantity() <= 0) {
             String title = getString(R.string.item_zero_title, item.getItemName());
             String message = getString(R.string.item_zero_message, item.getItemName());

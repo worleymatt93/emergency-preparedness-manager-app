@@ -2,6 +2,8 @@ package com.example.emergencypreparednessmanager.UI.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
@@ -23,6 +25,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -36,10 +39,17 @@ public class KitEditActivity extends AppCompatActivity {
     // ------------------- UI -------------------
 
     private MaterialToolbar toolbar;
-    private TextInputEditText editKitName, editLocation, editNotes;
+
+    private TextInputLayout kitNameLayout;
+    private TextInputEditText editKitName;
+
+    private TextInputEditText editLocation, editNotes;
+
     private MaterialCheckBox kitNotifyCheckbox;
-    private View frequencyLayout;
+
+    private TextInputLayout kitFrequencyLayout;
     private MaterialAutoCompleteTextView frequencyDropdown;
+
     private MaterialButton btnSaveKit;
 
     // ------------------- DATA -------------------
@@ -71,6 +81,7 @@ public class KitEditActivity extends AppCompatActivity {
         setupToolbar();
         setupFrequencyDropdown();
         setupNotificationsSection();
+        setupFieldBehaviors();
         setupSaveButton();
 
         if (kitID != -1) {
@@ -89,18 +100,21 @@ public class KitEditActivity extends AppCompatActivity {
     private void bindViews() {
         toolbar = findViewById(R.id.toolbar);
 
+        kitNameLayout = findViewById(R.id.kitNameLayout);
         editKitName = findViewById(R.id.kitNameText);
+
         editLocation = findViewById(R.id.locationText);
         editNotes = findViewById(R.id.notesText);
 
         kitNotifyCheckbox = findViewById(R.id.kitNotifyCheckbox);
-        frequencyLayout = findViewById(R.id.kitFrequencyLayout);
+
+        kitFrequencyLayout = findViewById(R.id.kitFrequencyLayout);
         frequencyDropdown = findViewById(R.id.kitFrequencyDropdown);
 
         btnSaveKit = findViewById(R.id.btnSaveKit);
 
         // Hidden until checkbox checked
-        frequencyLayout.setVisibility(View.GONE);
+        kitFrequencyLayout.setVisibility(View.GONE);
     }
 
     /**
@@ -154,13 +168,36 @@ public class KitEditActivity extends AppCompatActivity {
 
     private void setupNotificationsSection() {
         kitNotifyCheckbox.setOnCheckedChangeListener(((buttonView, isChecked) -> {
-            frequencyLayout.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            kitFrequencyLayout.setVisibility(isChecked ? View.VISIBLE : View.GONE);
 
-            // TODO: Is this where a Toast should go? Or some better validation?
+            // Clear any prior error
+            kitFrequencyLayout.setError(null);
+
             // Do not autofill. Force user selection when enabled
             selectedFrequency = null;
             frequencyDropdown.setText("", false);
         }));
+    }
+
+    private void setupFieldBehaviors() {
+        editKitName.addTextChangedListener(clearErrorWatcher(kitNameLayout));
+
+        frequencyDropdown.addTextChangedListener(clearErrorWatcher(kitFrequencyLayout));
+    }
+
+    private TextWatcher clearErrorWatcher(TextInputLayout layout) {
+        return new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                layout.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        };
     }
 
     private void setupSaveButton() {
@@ -179,10 +216,7 @@ public class KitEditActivity extends AppCompatActivity {
             editLocation.setText(kit.getLocation());
             editNotes.setText(kit.getNotes());
 
-            kitNotifyCheckbox.setChecked(kit.isNotificationsEnabled());
-
             String freq = kit.getNotificationFrequency();
-
             selectedFrequency = (freq != null && !freq.trim().isEmpty())
                     ? freq.trim().toUpperCase(Locale.US)
                     : null;
@@ -190,7 +224,7 @@ public class KitEditActivity extends AppCompatActivity {
             kitNotifyCheckbox.setChecked(kit.isNotificationsEnabled());
 
             if (kit.isNotificationsEnabled()) {
-                frequencyLayout.setVisibility(View.VISIBLE);
+                kitFrequencyLayout.setVisibility(View.VISIBLE);
 
                 // Only show the saved value
                 if (selectedFrequency != null) {
@@ -198,6 +232,9 @@ public class KitEditActivity extends AppCompatActivity {
                 } else {
                     frequencyDropdown.setText("", false);
                 }
+            } else {
+                kitFrequencyLayout.setVisibility(View.GONE);
+                frequencyDropdown.setText("", false);
             }
         });
     }
@@ -216,7 +253,6 @@ public class KitEditActivity extends AppCompatActivity {
                 frequencyDropdown.setText(getString(R.string.frequency_yearly), false);
                 break;
             default:
-                // TODO: Should there be a Toast? Should it default to a month?
                 // Unknown value: keep blank and force re-select
                 selectedFrequency = null;
                 frequencyDropdown.setText("", false);
@@ -230,6 +266,10 @@ public class KitEditActivity extends AppCompatActivity {
         btnSaveKit.setEnabled(false);
         kitNotifyCheckbox.setEnabled(false);
 
+        // Clear inline errors
+        kitNameLayout.setError(null);
+        kitFrequencyLayout.setError(null);
+
         String name = Objects.requireNonNull(editKitName.getText()).toString().trim();
         String location = Objects.requireNonNull(editLocation.getText()).toString().trim();
         String notes = Objects.requireNonNull(editNotes.getText()).toString().trim();
@@ -237,14 +277,14 @@ public class KitEditActivity extends AppCompatActivity {
         boolean notificationsEnabled = kitNotifyCheckbox.isChecked();
 
         if (name.isEmpty()) {
-            showToast(getString(R.string.kit_name_required));
+            kitNameLayout.setError(getString(R.string.kit_name_required));
             btnSaveKit.setEnabled(true);
             kitNotifyCheckbox.setEnabled(true);
             return;
         }
 
         if (notificationsEnabled && (selectedFrequency == null || selectedFrequency.trim().isEmpty())) {
-            showToast(getString(R.string.frequency_required));
+            kitFrequencyLayout.setError(getString(R.string.frequency_required));
             btnSaveKit.setEnabled(true);
             kitNotifyCheckbox.setEnabled(true);
             return;
@@ -309,6 +349,8 @@ public class KitEditActivity extends AppCompatActivity {
                 requestCode
         );
     }
+
+
 
     // ------------------- TOAST -------------------
 

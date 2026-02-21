@@ -97,7 +97,7 @@ public class KitItemAdapter extends RecyclerView.Adapter<KitItemAdapter.KitItemV
 
     // ------------------- VIEW HOLDER -------------------
 
-    class KitItemViewHolder extends RecyclerView.ViewHolder {
+    public class KitItemViewHolder extends RecyclerView.ViewHolder {
 
         private final MaterialCardView card;
 

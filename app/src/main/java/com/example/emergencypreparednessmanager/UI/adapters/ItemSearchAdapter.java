@@ -66,7 +66,7 @@ public class ItemSearchAdapter extends RecyclerView.Adapter<ItemSearchAdapter.VH
         return items.size();
     }
 
-    static class VH extends RecyclerView.ViewHolder {
+    public static class VH extends RecyclerView.ViewHolder {
         MaterialTextView textItem;
         MaterialTextView textKit;
         MaterialTextView textCategory;
