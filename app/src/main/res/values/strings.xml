@@ -115,4 +115,26 @@
         <item quantity="one">%d result</item>
         <item quantity="other">%d results</item>
     </plurals>
+    <string name="household_size">Household size</string>
+    <string name="error_household_required">Household size is required</string>
+    <string name="error_household_min_dynamic">Household size must be at least %1$d</string>
+    <string name="error_household_max_dynamic">Household size must be no more than %1$d</string>
+    <string name="error_household_number">Household size must be a number</string>
+    <string name="error_kit_name_required">Kit name is required</string>
+    <string name="error_frequency_required">Notification frequency is required</string>
+    <string name="missing_kit_id">Missing kit ID</string>
+    <string name="water_quantity_helper">Enter total amount of water in gallons.</string>
+    <string name="inventory_report_title">Emergency Preparedness Inventory Report</string>
+    <string name="summary">Summary</string>
+    <string name="readiness_check">Readiness Check</string>
+    <string name="expiration_section">Time-Sensitive Items</string>
+    <string name="full_inventory">Full Inventory</string>
+    <string name="sources">Sources</string>
+    <string name="community_resources">Community Resources</string>
+    <string name="generated_format">Generated: %1$s</string>
+    <string name="household_size_format">Household Size: %1$d</string>
+    <string name="export_csv">Export CSV</string>
+    <string name="copy_summary">Copy Summary</string>
+    <string name="soonest_first">Soonest first</string>
+    <string name="sorted_a_Z">Sorted A-Z</string>
 </resources>
