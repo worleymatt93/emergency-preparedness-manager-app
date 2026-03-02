@@ -1,26 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#B3E6D7</color>
-    <color name="onPrimary">#274C42</color>
-    <color name="primaryContainer">#346658</color>
-    <color name="onPrimaryContainer">#C2E6DB</color>
-    <color name="secondary">#E1E6D3</color>
-    <color name="onSecondary">#494C3F</color>
-    <color name="secondaryContainer">#626654</color>
-    <color name="onSecondaryContainer">#E3E6D8</color>
-    <color name="tertiary">#E6D8BE</color>
-    <color name="onTertiary">#4C432F</color>
-    <color name="tertiaryContainer">#66593F</color>
-    <color name="onTertiaryContainer">#E6DCCA</color>
-    <color name="error">#E67F91</color>
-    <color name="onError">#4C000E</color>
-    <color name="errorContainer">#660012</color>
-    <color name="onErrorContainer">#E69DAA</color>
-    <color name="background">#323333</color>
-    <color name="onBackground">#e4e6e5</color>
-    <color name="surface">#323333</color>
-    <color name="onSurface">#e4e6e5</color>
-    <color name="surfaceVariant">#5c6663</color>
-    <color name="onSurfaceVariant">#dbe6e3</color>
-    <color name="outline">#a7b3af</color>
+
+  <!-- Brand / Theme Colors -->
+  <color name="primary">#B3E6D7</color>
+  <color name="onPrimary">#274C42</color>
+  <color name="primaryContainer">#346658</color>
+  <color name="onPrimaryContainer">#C2E6DB</color>
+
+  <color name="secondary">#E1E6D3</color>
+  <color name="onSecondary">#494C3F</color>
+  <color name="secondaryContainer">#626654</color>
+  <color name="onSecondaryContainer">#E3E6D8</color>
+
+  <color name="tertiary">#E6D8BE</color>
+  <color name="onTertiary">#4C432F</color>
+  <color name="tertiaryContainer">#66593F</color>
+  <color name="onTertiaryContainer">#E6DCCA</color>
+
+  <!-- Status / Error -->
+  <color name="error">#E67F91</color>
+  <color name="onError">#4C000E</color>
+  <color name="errorContainer">#660012</color>
+  <color name="onErrorContainer">#E69DAA</color>
+
+  <!-- Surface / Background -->
+  <color name="background">#323333</color>
+  <color name="onBackground">#e4e6e5</color>
+
+  <color name="surface">#323333</color>
+  <color name="onSurface">#e4e6e5</color>
+
+  <color name="surfaceVariant">#5c6663</color>
+  <color name="onSurfaceVariant">#dbe6e3</color>
+
+  <!-- Outlines / Dividers -->
+  <color name="outline">#a7b3af</color>
+
 </resources>
