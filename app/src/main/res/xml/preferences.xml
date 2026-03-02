@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:background="?attr/colorSurface">
+
+  <androidx.preference.PreferenceCategory android:title="@string/pref_category_appearance">
+
+    <androidx.preference.ListPreference
+      android:defaultValue="@string/pref_theme_value_system"
+      android:entries="@array/pref_theme_entries"
+      android:entryValues="@array/pref_theme_values"
+      android:key="@string/pref_key_theme"
+      android:title="@string/pref_theme_title"
+      app:useSimpleSummaryProvider="true" />
+
+  </androidx.preference.PreferenceCategory>
+
+  <androidx.preference.PreferenceCategory android:title="@string/pref_category_notifications">
+
+    <androidx.preference.Preference
+      android:key="@string/pref_key_notification_time"
+      android:summary="@string/pref_notification_time_summary_placeholder"
+      android:title="@string/pref_notification_time_title" />
+
+    <androidx.preference.SwitchPreferenceCompat
+      android:defaultValue="true"
+      android:key="@string/pref_key_notifications_enabled"
+      android:title="@string/pref_notifications_enabled_title" />
+
+  </androidx.preference.PreferenceCategory>
+
+  <androidx.preference.PreferenceCategory android:title="@string/pref_category_household">
+
+    <androidx.preference.SeekBarPreference
+      android:defaultValue="@integer/household_min"
+      android:key="@string/pref_key_household_size"
+      android:max="@integer/household_max"
+      android:min="@integer/household_min"
+      android:title="@string/pref_household_size_title"
+      app:showSeekBarValue="true" />
+
+  </androidx.preference.PreferenceCategory>
+
+  <androidx.preference.PreferenceCategory android:title="@string/pref_category_about">
+
+    <androidx.preference.Preference
+      android:key="@string/pref_key_version"
+      android:summary="@string/pref_version_summary_placeholder"
+      android:title="@string/pref_version_title" />
+
+  </androidx.preference.PreferenceCategory>
+
+</androidx.preference.PreferenceScreen>

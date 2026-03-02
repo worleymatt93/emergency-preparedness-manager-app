@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="MyToolbarPopupMenu" parent="ThemeOverlay.Material3">
-        <item name="android:popupBackground">@color/surface</item>
-        <item name="android:textColor">@color/onSurface</item>
-    </style>
+
+  <!-- Toolbar popup menu overlay (used for overflow menus, etc.) -->
+  <style name="MyToolbarPopupMenu" parent="ThemeOverlay.Material3">
+
+    <!-- Background of the popup menu -->
+    <item name="android:popupBackground">@color/surface</item>
+
+    <!-- Text color inside the popup menu items -->
+    <item name="android:textColor">@color/onSurface</item>
+
+  </style>
 </resources>

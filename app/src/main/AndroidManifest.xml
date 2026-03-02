@@ -1,52 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+  package="com.example.emergencypreparednessmanager">
 
-    <!-- Notification permissions -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+  <!-- Permissions -->
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <application
-        android:allowBackup="true"
-        android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
-        android:theme="@style/Theme.EmergencyPreparednessManager">
+  <application
+    android:allowBackup="true"
+    android:dataExtractionRules="@xml/data_extraction_rules"
+    android:fullBackupContent="@xml/backup_rules"
+    android:icon="@mipmap/ic_launcher"
+    android:label="@string/app_name"
+    android:resizeableActivity="true"
+    android:roundIcon="@mipmap/ic_launcher_round"
+    android:supportsPictureInPicture="false"
+    android:supportsRtl="true"
+    android:theme="@style/Theme.EmergencyPreparednessManager">
 
-        <activity android:name=".UI.activities.KitListActivity" />
-        <activity android:name=".UI.activities.KitEditActivity" />
-        <activity android:name=".UI.activities.KitItemsActivity" />
-        <activity android:name=".UI.activities.KitItemEditActivity" />
-        <activity android:name=".UI.activities.SettingsActivity" />
-        <activity android:name=".UI.activities.SearchSuppliesActivity" />
-        <activity android:name=".UI.activities.ReportsActivity" />
+    <!-- Launcher Activity -->
+    <activity
+      android:exported="true"
+      android:launchMode="singleTop"
+      android:name=".ui.activities.MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
 
-        <activity
-            android:name=".UI.activities.MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+    <!-- Other Activities (alphabetical order) -->
+    <activity android:name=".ui.activities.KitEditActivity" />
+    <activity android:name=".ui.activities.KitItemEditActivity" />
+    <activity android:name=".ui.activities.KitItemsActivity" />
+    <activity android:name=".ui.activities.KitListActivity" />
+    <activity android:name=".ui.activities.ReportsActivity" />
+    <activity android:name=".ui.activities.SearchSuppliesActivity" />
+    <activity android:name=".ui.activities.SettingsActivity" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
 
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.fileprovider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
-        </provider>
+    <!-- File Provider CSV sharing -->
+    <provider
+      android:authorities="${applicationId}.fileprovider"
+      android:exported="false"
+      android:grantUriPermissions="true"
+      android:name="androidx.core.content.FileProvider">
+      <meta-data
+        android:name="android.support.FILE_PROVIDER_PATHS"
+        android:resource="@xml/file_paths" />
+    </provider>
 
-        <receiver
-            android:name=".UI.receivers.AlertReceiver"
-            android:exported="false" />
+    <!-- Broadcast Receiver for scheduled notifications -->
+    <receiver
+      android:exported="false"
+      android:name=".ui.receivers.AlertReceiver" />
 
-    </application>
+  </application>
 
 </manifest>
