@@ -219,7 +219,6 @@ public class SearchSuppliesActivity extends BaseActivity {
             showNoResultsState();
           }
         });
-
         return true;
       }
     });
