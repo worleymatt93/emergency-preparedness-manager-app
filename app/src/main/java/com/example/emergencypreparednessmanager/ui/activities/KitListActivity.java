@@ -177,6 +177,7 @@ public class KitListActivity extends AppCompatActivity {
         applyEmptyStateMode(true);
         fab.setVisibility(View.GONE);
       }
+
       precomputeNonDeletableKits();
     }));
   }
