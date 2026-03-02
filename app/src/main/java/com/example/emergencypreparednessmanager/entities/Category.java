@@ -6,48 +6,57 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 /**
- * Entity representing a category for kit items.
- * Categories are seeded on first run and may be user-managed.
+ * Room entity representing a category for kit items.
+ * <p>
+ * Categories are seeded with defaults on first run and can be managed by the user. Enforces unique
+ * category names via index.
  */
 @Entity(
-        tableName = "Categories",
-        indices = {@Index(value = {"categoryName"}, unique = true)}
+    tableName = "Categories",
+    indices = {@Index(value = {"categoryName"}, unique = true)}
 )
 public class Category {
 
-    // ------------------- DATABASE FIELDS -------------------
+  //region Fields
+  @PrimaryKey(autoGenerate = true)
+  private int categoryID;
 
-    @PrimaryKey(autoGenerate = true)
-    private int categoryID;
-    private String categoryName;
+  private String categoryName;
+  //endregion
 
-    // ------------------- CONSTRUCTORS -------------------
+//region Constructors
 
-    public Category(String categoryName) {
-        this.categoryName = categoryName;
-    }
+  /**
+   * Creates a new category with the given name (used when inserting new categories).
+   *
+   * @param categoryName the display name of the category
+   */
+  public Category(String categoryName) {
+    this.categoryName = categoryName;
+  }
 
-    @Ignore
-    public Category(int categoryID, String categoryName) {
-        this.categoryID = categoryID;
-        this.categoryName = categoryName;
-    }
+  @Ignore
+  public Category(int categoryID, String categoryName) {
+    this.categoryID = categoryID;
+    this.categoryName = categoryName;
+  }
+  //endRegion
 
-    // ------------------- GETTERS AND SETTERS -------------------
+  //region Getters and Setters
+  public int getCategoryID() {
+    return categoryID;
+  }
 
-    public int getCategoryID() {
-        return categoryID;
-    }
+  public void setCategoryID(int categoryID) {
+    this.categoryID = categoryID;
+  }
 
-    public void setCategoryID(int categoryID) {
-        this.categoryID = categoryID;
-    }
+  public String getCategoryName() {
+    return categoryName;
+  }
 
-    public String getCategoryName() {
-        return categoryName;
-    }
-
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
-    }
+  public void setCategoryName(String categoryName) {
+    this.categoryName = categoryName;
+  }
+  //endregion
 }

@@ -3,311 +3,311 @@ package com.example.emergencypreparednessmanager.database;
 import android.app.Application;
 import android.os.Handler;
 import android.os.Looper;
-
 import com.example.emergencypreparednessmanager.dao.CategoryDAO;
 import com.example.emergencypreparednessmanager.dao.KitDAO;
 import com.example.emergencypreparednessmanager.dao.KitItemDAO;
 import com.example.emergencypreparednessmanager.entities.Category;
 import com.example.emergencypreparednessmanager.entities.Kit;
 import com.example.emergencypreparednessmanager.entities.KitItem;
-
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 /**
- * Repository providing access to Kit, KitItem, and Category data.
- * Handles asynchronous database operations and posts results to the main thread.
+ * Single source of truth for data access in the app.
+ * <p>
+ * Encapsulates all DAO interactions, runs database operations off the main thread, and delivers
+ * results back to the main thread via callbacks.
  */
 public class Repository {
 
-    // ------------------- EXECUTORS -------------------
+  //region Executors
+  private static final int NUMBER_OF_THREADS = 4;
+  private static final ExecutorService databaseExecutor =
+      Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+  private static final Handler mainHandler = new Handler(Looper.getMainLooper());
+  //endregion
 
-    private static final int NUMBER_OF_THREADS = 4;
-    private static final ExecutorService databaseExecutor =
-            Executors.newFixedThreadPool(NUMBER_OF_THREADS);
-    private static final Handler mainHandler = new Handler(Looper.getMainLooper());
+  //region DAOs
+  private final KitDAO kitDAO;
+  private final KitItemDAO kitItemDAO;
+  private final CategoryDAO categoryDAO;
+  //endregion
 
-    // ------------------- DAOs -------------------
+  //region Constructor
 
-    private final KitDAO mKitDAO;
-    private final KitItemDAO mKitItemDAO;
-    private final CategoryDAO mCategoryDAO;
+  /**
+   * Initializes the repository with DAO references from the Room database.
+   *
+   * @param application application context
+   */
+  public Repository(Application application) {
+    DatabaseBuilder db = DatabaseBuilder.getDatabase(application);
+    kitDAO = db.kitDAO();
+    kitItemDAO = db.kitItemDAO();
+    categoryDAO = db.categoryDAO();
+  }
+  //endregion
 
-    // ------------------- CONSTRUCTOR -------------------
+  //region Kits
 
-    /**
-     * Initializes the DAO instances from the Room database.
-     *
-     * @param application   Application context
-     */
-    public Repository(Application application) {
-        DatabaseBuilder db = DatabaseBuilder.getDatabase(application);
-        mKitDAO = db.kitDAO();
-        mKitItemDAO = db.kitItemDAO();
-        mCategoryDAO = db.categoryDAO();
-    }
+  /**
+   * Retrieves all kits asynchronously.
+   *
+   * @param callback receives the list of kits on the main thread
+   */
+  public void getAllKits(Consumer<List<Kit>> callback) {
+    databaseExecutor.execute(() -> {
+      List<Kit> kits = kitDAO.getAllKits();
+      mainHandler.post(() -> callback.accept(kits));
+    });
+  }
 
-    // ------------------- KITS -------------------
+  /**
+   * Retrieves a single kit by ID asynchronously.
+   *
+   * @param kitID    kit ID to find
+   * @param callback receives the kit on the main thread (null if not found)
+   */
+  public void getKitById(int kitID, Consumer<Kit> callback) {
+    databaseExecutor.execute(() -> {
+      Kit kit = kitDAO.getKitByID(kitID);
+      mainHandler.post(() -> callback.accept(kit));
+    });
+  }
 
-    /**
-     * Retrieves all kits asynchronously.
-     *
-     * @param callback      receives the list of kits on the main thread
-     */
-    public void getAllKits(Consumer<List<Kit>> callback) {
-        databaseExecutor.execute(() -> {
-            List<Kit> kits = mKitDAO.getAllKits();
-            mainHandler.post(() -> callback.accept(kits));
-        });
-    }
+  /**
+   * Inserts a new kit asynchronously.
+   *
+   * @param kit      kit to insert
+   * @param callback receives the new row ID on the main thread
+   */
+  public void insertKit(Kit kit, Consumer<Long> callback) {
+    databaseExecutor.execute(() -> {
+      long id = kitDAO.insert(kit);
+      mainHandler.post(() -> callback.accept(id));
+    });
+  }
 
-    /**
-     * Retrieves a kit by ID asynchronously.
-     *
-     * @param kitID         ID of the kit
-     * @param callback      receives the Kit on the main thread
-     */
+  /**
+   * Updates an existing kit asynchronously.
+   *
+   * @param kit      kit with updated values
+   * @param callback called on the main thread after update (optional)
+   */
+  public void updateKit(Kit kit, Runnable callback) {
+    databaseExecutor.execute(() -> {
+      kitDAO.update(kit);
+      if (callback != null) {
+        mainHandler.post(callback);
+      }
+    });
+  }
 
-    public void getKitById(int kitID, Consumer<Kit> callback) {
-        databaseExecutor.execute(() -> {
+  /**
+   * Deletes a kit asynchronously.
+   *
+   * @param kit      kit to delete
+   * @param callback called on the main thread after deletion (optional)
+   */
+  public void deleteKit(Kit kit, Runnable callback) {
+    databaseExecutor.execute(() -> {
+      kitDAO.delete(kit);
+      if (callback != null) {
+        mainHandler.post(callback);
+      }
+    });
+  }
 
-            // Fetch kit by ID in background
-            Kit kit = mKitDAO.getKitByID(kitID);
+  /**
+   * Searches kits by name or location.
+   *
+   * @param query    search text
+   * @param callback receives matching kits on main thread
+   */
+  public void searchKits(String query, Consumer<List<Kit>> callback) {
+    databaseExecutor.execute(() -> {
+      List<Kit> kits = kitDAO.searchKits(query);
+      mainHandler.post(() -> callback.accept(kits));
+    });
+  }
+  //endregion
 
-            // Post result to main thread
-            mainHandler.post(() -> callback.accept(kit));
-        });
-    }
+  //region Kit Items
 
-    /**
-     * Inserts a kit into the database asynchronously.
-     *
-     * @param kit           Kit to insert
-     * @param callback      Runnable called on the main thread after insertion
-     */
-    public void insert(Kit kit, Consumer<Long> callback) {
-        databaseExecutor.execute(() -> {
-            long id = mKitDAO.insert(kit);
-            mainHandler.post(() -> {
-                if (callback != null) callback.accept(id);
-            });
-        });
-    }
+  /**
+   * Retrieves all items in a specific kit.
+   *
+   * @param kitID    kit ID
+   * @param callback receives the list on the main thread
+   */
+  public void getItemsForKit(int kitID, Consumer<List<KitItem>> callback) {
+    databaseExecutor.execute(() -> {
+      List<KitItem> items = kitItemDAO.getItemsForKit(kitID);
+      mainHandler.post(() -> callback.accept(items));
+    });
+  }
 
-    /**
-     * Updates an existing kit asynchronously.
-     *
-     * @param kit           Kit to update
-     * @param callback      Runnable called on the main thread after update
-     */
-    public void update(Kit kit, Runnable callback) {
-        databaseExecutor.execute(() -> {
-            mKitDAO.update(kit);
-            if (callback != null) mainHandler.post(callback);
-        });
-    }
+  /**
+   * Retrieves a single kit item by ID.
+   *
+   * @param itemID   item ID
+   * @param callback receives the item on the main thread (null if not found)
+   */
+  public void getItemById(int itemID, Consumer<KitItem> callback) {
+    databaseExecutor.execute(() -> {
+      KitItem item = kitItemDAO.getItemById(itemID);
+      mainHandler.post(() -> callback.accept(item));
+    });
+  }
 
-    /**
-     * Deletes a kit asynchronously.
-     *
-     * @param kit           Kit to delete
-     * @param callback      Runnable called on the main thread after deletion
-     */
-    public void delete(Kit kit, Runnable callback) {
-        databaseExecutor.execute(() -> {
-            mKitDAO.delete(kit);
-            if (callback != null) mainHandler.post(callback);
-        });
-    }
+  /**
+   * Inserts a new kit item asynchronously.
+   *
+   * @param item     item to insert
+   * @param callback receives the new row ID on the main thread
+   */
+  public void insertItem(KitItem item, Consumer<Long> callback) {
+    databaseExecutor.execute(() -> {
+      long id = kitItemDAO.insert(item);
+      mainHandler.post(() -> callback.accept(id));
+    });
+  }
 
-    public void getKitsWithNotificationsEnabled(Consumer<List<Kit>> callback) {
-        databaseExecutor.execute(() -> {
-            List<Kit> kits = mKitDAO.getKitsWithNotificationsEnabled();
-            mainHandler.post(() -> callback.accept(kits));
-        });
-    }
+  /**
+   * Updates an existing kit item asynchronously.
+   *
+   * @param item     item with updated values
+   * @param callback called on the main thread after update (optional)
+   */
+  public void updateItem(KitItem item, Runnable callback) {
+    databaseExecutor.execute(() -> {
+      kitItemDAO.update(item);
+      if (callback != null) {
+        mainHandler.post(callback);
+      }
+    });
+  }
 
-    public void getKitsByFrequency(String frequency, Consumer<List<Kit>> callback) {
-        databaseExecutor.execute(() -> {
-            List<Kit> kits = mKitDAO.getKitsByFrequency(frequency);
-            mainHandler.post(() -> callback.accept(kits));
-        });
-    }
+  /**
+   * Deletes a kit item asynchronously.
+   *
+   * @param item     item to delete
+   * @param callback called on the main thread after deletion (optional)
+   */
+  public void deleteItem(KitItem item, Runnable callback) {
+    databaseExecutor.execute(() -> {
+      kitItemDAO.delete(item);
+      if (callback != null) {
+        mainHandler.post(callback);
+      }
+    });
+  }
 
-    public void countItemsForKit(int kitID, Consumer<Integer> callback) {
-        databaseExecutor.execute(() -> {
-            int count = mKitItemDAO.countItemsForKit(kitID);
-            mainHandler.post(() -> callback.accept(count));
-        });
-    }
+  /**
+   * Adjusts quantity by delta (clamps to ≥ 0) and returns the updated item.
+   *
+   * @param itemID   item ID
+   * @param delta    amount to add (positive or negative)
+   * @param callback receives the updated item on main thread
+   */
+  public void adjustItemQuantity(int itemID, int delta, Consumer<KitItem> callback) {
+    databaseExecutor.execute(() -> {
+      KitItem updated = kitItemDAO.adjustQuantityAndGet(itemID, delta);
+      mainHandler.post(() -> callback.accept(updated));
+    });
+  }
 
-    public void getKitIdsThatHaveItems(Consumer<List<Integer>> callback) {
-        databaseExecutor.execute(() -> {
-            List<Integer> ids = mKitItemDAO.getKitIdsThatHaveItems();
-            mainHandler.post(() -> callback.accept(ids));
-        });
-    }
+  /**
+   * Searches items within a specific kit.
+   *
+   * @param kitID    kit ID
+   * @param query    search text
+   * @param callback receives matching items on main thread
+   */
+  public void searchItemsInKit(int kitID, String query, Consumer<List<KitItem>> callback) {
+    databaseExecutor.execute(() -> {
+      List<KitItem> results = kitItemDAO.searchItemsInKit(kitID, query);
+      mainHandler.post(() -> callback.accept(results));
+    });
+  }
 
-    // ------------------- KIT ITEMS -------------------
+  /**
+   * Retrieves the set of all kit IDs that contain at least one item.
+   * <p>
+   * Used for bulk delete protection (e.g., swipe-to-delete in kit list). Returns a Set<Integer> for
+   * fast contains() checks.
+   *
+   * @param callback receives the set of non-deletable kit IDs on the main thread
+   */
+  public void getNonDeletableKitIds(Consumer<Set<Integer>> callback) {
+    databaseExecutor.execute(() -> {
+      List<Integer> ids = kitItemDAO.getKitIdsWithAtLeastOneItem();
+      Set<Integer> set = ids != null ? new HashSet<>(ids) : new HashSet<>();
+      mainHandler.post(() -> callback.accept(set));
+    });
+  }
+  //endregion
 
-    public void getItemsForKit(int kitID, Consumer<List<KitItem>> callback) {
-        databaseExecutor.execute(() -> {
-            List<KitItem> items = mKitItemDAO.getItemsForKit(kitID);
-            mainHandler.post(() -> callback.accept(items));
-        });
-    }
+  //region Categories
 
-    public void getItemById(int itemID, Consumer<KitItem> callback) {
-        databaseExecutor.execute(() -> {
-            KitItem item = mKitItemDAO.getItemById(itemID);
-            mainHandler.post(() -> callback.accept(item));
-        });
-    }
+  /**
+   * Retrieves all categories asynchronously.
+   *
+   * @param callback receives the list on main thread
+   */
+  public void getAllCategories(Consumer<List<Category>> callback) {
+    databaseExecutor.execute(() -> {
+      List<Category> categories = categoryDAO.getAllCategories();
+      mainHandler.post(() -> callback.accept(categories));
+    });
+  }
 
-    public void searchItemsInKit(int kitID, String query, Consumer<List<KitItem>> callback) {
-        databaseExecutor.execute(() -> {
-            List<KitItem> results = mKitItemDAO.searchItemsInKit(kitID, query);
-            mainHandler.post(() -> callback.accept(results));
-        });
-    }
+  /**
+   * Inserts a new category asynchronously.
+   *
+   * @param category category to insert
+   * @param callback receives the new row ID on main thread
+   */
+  public void insertCategory(Category category, Consumer<Long> callback) {
+    databaseExecutor.execute(() -> {
+      long id = categoryDAO.insert(category);
+      mainHandler.post(() -> callback.accept(id));
+    });
+  }
+  //endregion
 
-    public void searchKits(String query, Consumer<List<Kit>> callback) {
-        databaseExecutor.execute(() -> {
-            List<Kit> kits = mKitDAO.searchKits(query);
-            mainHandler.post(() -> callback.accept(kits));
-        });
-    }
+  //region Search
 
-    public void searchAllItems(String query, Consumer<List<ItemSearchRow>> callback) {
-        databaseExecutor.execute(() -> {
-            List<ItemSearchRow> results = mKitItemDAO.searchAllItems(query);
-            mainHandler.post(() -> callback.accept(results));
-        });
-    }
+  /**
+   * Searches items globally across all kits (denormalized results).
+   *
+   * @param query    search text
+   * @param callback receives denormalized search rows on main thread
+   */
+  public void searchAllItems(String query, Consumer<List<ItemSearchRow>> callback) {
+    databaseExecutor.execute(() -> {
+      List<ItemSearchRow> results = kitItemDAO.searchAllItems(query);
+      mainHandler.post(() -> callback.accept(results));
+    });
+  }
+  //endregion
 
-    /**
-     * Inserts a kit item asynchronously.
-     *
-     * @param item          Kit Item to insert
-     * @param callback      Runnable called on the main thread after insertion
-     */
-    public void insert(KitItem item, Consumer<Long> callback) {
-        databaseExecutor.execute(() -> {
-            long id = mKitItemDAO.insert(item);
-            mainHandler.post(() -> {
-                if (callback != null) callback.accept(id);
-            });
-        });
-    }
+  //region Reports
 
-    /**
-     * Updates a kit item asynchronously.
-     *
-     * @param item          Kit Item to update
-     * @param callback      Runnable called on the main thread after update
-     */
-    public void update(KitItem item, Runnable callback) {
-        databaseExecutor.execute(() -> {
-            mKitItemDAO.update(item);
-            if (callback != null) mainHandler.post(callback);
-        });
-    }
-
-    /**
-     * Deletes a kit item asynchronously.
-     *
-     * @param item          Kit Item to delete
-     * @param callback      Runnable called on the main thread after deletion
-     */
-    public void delete(KitItem item, Runnable callback) {
-        databaseExecutor.execute(() -> {
-            mKitItemDAO.delete(item);
-            if (callback != null) mainHandler.post(callback);
-        });
-    }
-
-    public void getItemsWithExpirationRemindersEnabled(Consumer<List<KitItem>> callback) {
-        databaseExecutor.execute(() -> {
-            List<KitItem> items = mKitItemDAO.getItemsWithExpirationRemindersEnabled();
-            mainHandler.post(() -> callback.accept(items));
-        });
-    }
-
-    public void getItemsWithNotifyOnZeroEnabled(Consumer<List<KitItem>> callback) {
-        databaseExecutor.execute(() -> {
-            List<KitItem> items = mKitItemDAO.getItemsWithNotifyOnZeroEnabled();
-            mainHandler.post(() -> callback.accept(items));
-        });
-    }
-
-    public void getZeroQuantityItemsNeedingNotification(Consumer<List<KitItem>> callback) {
-        databaseExecutor.execute(() -> {
-            List<KitItem> items = mKitItemDAO.getZeroQuantityItemsNeedingNotification();
-            mainHandler.post(() -> callback.accept(items));
-        });
-    }
-
-    public void updateItemQuantity(int itemID, int newQuantity, Runnable callback) {
-        databaseExecutor.execute(() -> {
-            mKitItemDAO.updateQuantity(itemID, newQuantity);
-            if (callback != null) mainHandler.post(callback);
-        });
-    }
-
-    public void adjustItemQuantity(int itemID, int delta, Consumer<KitItem> callback) {
-        databaseExecutor.execute(() -> {
-            KitItem updated = mKitItemDAO.adjustQuantityAndGet(itemID, delta);
-            mainHandler.post(() -> callback.accept(updated));
-        });
-    }
-
-    // ------------------- CATEGORIES -------------------
-
-    public void getAllCategories(Consumer<List<Category>> callback) {
-        databaseExecutor.execute(() -> {
-            List<Category> categories = mCategoryDAO.getAllCategories();
-            mainHandler.post(() -> callback.accept(categories));
-        });
-    }
-
-    public void insert(Category category, Consumer<Long> callback) {
-        databaseExecutor.execute(() -> {
-            long id = mCategoryDAO.insert(category);
-            mainHandler.post(() -> callback.accept(id));
-        });
-    }
-
-    // ------------------- SEARCH -------------------
-
-    public void searchItems(String query, Consumer<List<KitItem>> callback) {
-        databaseExecutor.execute(() -> {
-            List<KitItem> results = mKitItemDAO.searchItems(query);
-            mainHandler.post(() -> callback.accept(results));
-        });
-    }
-
-    // ------------------- REPORTS -------------------
-
-    public void getItemsExpiringBetween(String startDate, String endDate, Consumer<List<KitItem>> callback) {
-        databaseExecutor.execute(() -> {
-            List<KitItem> results = mKitItemDAO.getItemsExpiringBetween(startDate, endDate);
-            mainHandler.post(() -> callback.accept(results));
-        });
-    }
-
-    public void getLowStockItems(int threshold, Consumer<List<KitItem>> callback) {
-        databaseExecutor.execute(() -> {
-            List<KitItem> results = mKitItemDAO.getLowStockItems(threshold);
-            mainHandler.post(() -> callback.accept(results));
-        });
-    }
-
-    public void getInventoryReportRows(Consumer<List<ItemSearchRow>> callback) {
-        databaseExecutor.execute(() -> {
-            List<ItemSearchRow> rows = mKitItemDAO.getInventoryReportRows();
-            mainHandler.post(() -> callback.accept(rows));
-        });
-    }
+  /**
+   * Retrieves full inventory report rows (denormalized).
+   *
+   * @param callback receives the list on main thread
+   */
+  public void getInventoryReportRows(Consumer<List<ItemSearchRow>> callback) {
+    databaseExecutor.execute(() -> {
+      List<ItemSearchRow> rows = kitItemDAO.getInventoryReportRows();
+      mainHandler.post(() -> callback.accept(rows));
+    });
+  }
+  //endregion
 }
