@@ -48,7 +48,6 @@ public class KitItemEditActivity extends BaseActivity {
   //region Constants
   public static final String EXTRA_KIT_ID = "kitID";
   public static final String EXTRA_ITEM_ID = "itemID";
-  private static final String TAG = "KitITemEditActivity";
   //endregion
 
   //region Fields
