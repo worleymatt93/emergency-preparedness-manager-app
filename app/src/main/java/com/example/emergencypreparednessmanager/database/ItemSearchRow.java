@@ -3,65 +3,70 @@ package com.example.emergencypreparednessmanager.database;
 import androidx.room.ColumnInfo;
 
 /**
- * Row model for global item search results (KitItems JOIN Kits JOIN Categories).
+ * Denormalized projection (DTO) used for global item search and inventory report screens.
+ * <p>
+ * Not a Room entity — populated by JOIN queries in DAOs (e.g., KitItemDAO). Fields map directly to
+ * selected columns for display efficiency.
  */
 public class ItemSearchRow {
 
-    @ColumnInfo(name = "itemID")
-    public int itemID;
+  //region Fields
+  @ColumnInfo(name = "itemID")
+  public int itemID;
 
-    @ColumnInfo(name = "kitID")
-    public int kitID;
+  @ColumnInfo(name = "kitID")
+  public int kitID;
 
-    @ColumnInfo(name = "itemName")
-    public String itemName;
+  @ColumnInfo(name = "itemName")
+  public String itemName;
 
-    @ColumnInfo(name = "quantity")
-    public int quantity;
+  @ColumnInfo(name = "quantity")
+  public int quantity;
 
-    @ColumnInfo(name = "expirationDate")
-    public String expirationDate;
+  @ColumnInfo(name = "expirationDate")
+  public String expirationDate;
 
-    @ColumnInfo(name = "kitName")
-    public String kitName;
+  @ColumnInfo(name = "kitName")
+  public String kitName;
 
-    @ColumnInfo(name = "categoryName")
-    public String categoryName;
+  @ColumnInfo(name = "categoryName")
+  public String categoryName;
 
-    @ColumnInfo(name = "location")
-    public String location;
+  @ColumnInfo(name = "location")
+  public String location;
+  //endregion
 
-    // ---- Getters ----
+  //region Getters
+  public int getItemID() {
+    return itemID;
+  }
 
-    public int getItemID() {
-        return itemID;
-    }
+  public int getKitID() {
+    return kitID;
+  }
 
-    public int getKitID() {
-        return kitID;
-    }
+  public String getItemName() {
+    return itemName;
+  }
 
-    public String getItemName() {
-        return itemName;
-    }
+  public int getQuantity() {
+    return quantity;
+  }
 
-    public int getQuantity() {
-        return quantity;
-    }
+  public String getExpirationDate() {
+    return expirationDate;
+  }
 
-    public String getExpirationDate() {
-        return expirationDate;
-    }
+  public String getKitName() {
+    return kitName;
+  }
 
-    public String getKitName() {
-        return kitName;
-    }
+  public String getCategoryName() {
+    return categoryName;
+  }
 
-    public String getCategoryName() {
-        return categoryName;
-    }
-
-    public String getLocation() {
-        return location;
-    }
+  public String getLocation() {
+    return location;
+  }
+  //endregion
 }
