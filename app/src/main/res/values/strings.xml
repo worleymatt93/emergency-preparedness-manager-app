@@ -1,140 +1,407 @@
 <resources>
-    <string name="app_name">EmergencyPreparednessManager</string>
-    <string name="emergency_preparedness_manager">Emergency Preparedness Manager</string>
-    <string name="build_kits_track_supplies_and_stay_ready">Build kits, track supplies, and stay ready.</string>
-    <string name="manage_kits">Manage Kits</string>
-    <string name="search_supplies">Search Supplies</string>
-    <string name="reports">Reports</string>
-    <string name="no_kits_yet">No kits yet</string>
-    <string name="create_kit">Create kit</string>
-    <string name="kits">Kits</string>
-    <string name="add_kit">Add kit</string>
-    <string name="create_your_first_kit_to_start_tracking_supplies">Create your first kit to start tracking supplies.</string>
-    <string name="search">Search</string>
-    <string name="kit_name">Kit Name</string>
-    <string name="location">Location</string>
-    <string name="no_location_set">No location set</string>
-    <string name="kit_item">Kit item</string>
-    <string name="expiration_date">Expiration Date</string>
-    <string name="no_expiration">No expiration</string>
-    <string name="qty_format">Qty: %1$d</string>
-    <string name="expires_format">Expires: %1$s</string>
-    <string name="kit_details">Kit Details</string>
-    <string name="kit_name_2">Kit name</string>
-    <string name="location_optional">Location (optional)</string>
-    <string name="notes_optional">Notes (optional)</string>
-    <string name="enable_kit_notifications">Enable kit reminders</string>
-    <string name="notification_time">Notification time</string>
-    <string name="items">Items</string>
-    <string name="no_items_in_kit">No items in this kit yet.</string>
-    <string name="add_item">Add item</string>
-    <string name="select_notification_time">Select notification time</string>
-    <string name="save">Save</string>
-    <string name="delete">Delete</string>
-    <string name="share">Share</string>
-    <string name="kit_name_required">Kit name is required</string>
-    <string name="kit_added">Kit added</string>
-    <string name="kit_updated">Kit updated</string>
-    <string name="kit_deleted">Kit deleted</string>
-    <string name="kit_removed">Kit removed</string>
-    <string name="kit_restored">Kit restored</string>
-    <string name="cannot_delete_kit_with_items">Cannot delete a kit that has items</string>
-    <string name="nothing_to_share">Nothing to share</string>
-    <string name="copied_to_clipboard">Copied to clipboard</string>
-    <string name="item_removed">Item removed</string>
-    <string name="item_deleted">Item deleted</string>
-    <string name="item_restored">Item restored</string>
-    <string name="undo">UNDO</string>
-    <string name="save_kit_before_adding_items">Save the kit before adding items</string>
-    <string name="todo_add_item_screen">Add item screen not built yet</string>
-    <string name="save_kit">Save Kit</string>
-    <string name="add_your_first_item">Add your first item to start tracking supplies.</string>
-    <string name="edit_kit">Edit kit</string>
-    <string name="item_name">Item name</string>
-    <string name="quantity">Quantity</string>
-    <string name="category">Category</string>
-    <string name="add_category">Add category</string>
-    <string name="category_name">Category name</string>
-    <string name="category_name_required">Category name is required</string>
-    <string name="category_added">Category added</string>
-    <string name="category_required">Please select a category</string>
-    <string name="expiration_date_optional">Expiration date (optional)</string>
-    <string name="save_item">Save item</string>
-    <string name="edit_item">Edit item</string>
-    <string name="item_name_required">Item name is required</string>
-    <string name="quantity_invalid">Quantity must be a number</string>
-    <string name="item_added">Item added</string>
-    <string name="item_updated">Item updated</string>
-    <string name="add">Add</string>
-    <string name="category_already_exists">Category already exists</string>
-    <string name="add_category_ellipsis">Add category…</string>
-    <string name="select_expiration_date">Select expiration date</string>
-    <string name="settings">Settings</string>
-    <string name="settings_saved">Settings saved</string>
-    <string name="notification_frequency">Reminder frequency</string>
-    <string name="frequency_monthly">Monthly</string>
-    <string name="frequency_quarterly">Quarterly</string>
-    <string name="frequency_yearly">Yearly</string>
-    <string name="frequency_required">Please choose a notification frequency</string>
-    <string name="kit_reminder_title">Kit reminder: %1$s</string>
-    <string name="kit_reminder_message">Review this kit and restock as needed.</string>
-    <string name="notification_time_global_hint">Reminder time is controlled in Settings</string>
-    <string name="enable_expiration_reminder">Enable expiration reminder</string>
-    <string name="days_before_expiration">Remind me (days before)</string>
-    <string name="notify_when_zero">Notify when quantity reaches zero</string>
-    <string name="kit_notification_title">Time to check your %1$s kit</string>
-    <string name="kit_notification_message">Review and restock items in your %1$s kit if needed.</string>
-    <string name="expiration_required_for_reminder">Set an expiration date to enable this reminder.</string>
-    <string name="days_before_invalid">Days before must be 0 or more.</string>
-    <string name="item_expiration_title">%1$s is expiring soon</string>
-    <string name="item_expiration_message">%1$s expires on %2$s.</string>
-    <string name="item_zero_title">%1$s is out of stock</string>
-    <string name="item_zero_message">%1$s has reached zero quantity.</string>
-    <string name="increase_quantity">Increase quantity</string>
-    <string name="decrease_quantity">Decrease quantity</string>
-    <string name="qty_format_short">Qty: %1$d</string>
-    <string name="search_kits">Search kits</string>
-    <string name="search_items">Search items</string>
-    <string name="no_matching_kits">No matching kits</string>
-    <string name="no_matching_items">No matching items</string>
-    <string name="try_different_search">Try a different search term.</string>
-    <string name="type_to_search">Type to search</string>
-    <string name="col_item">Item</string>
-    <string name="col_kit">Kit</string>
-    <string name="col_category">Category</string>
-    <string name="col_qty">Qty</string>
-    <string name="header_item">Item</string>
-    <string name="header_kit">Kit</string>
-    <string name="header_category">Category</string>
-    <string name="header_quantity">Qty</string>
-    <string name="placeholder_item">Item name</string>
-    <string name="placeholder_kit">Kit name</string>
-    <string name="placeholder_category">Category</string>
-    <string name="placeholder_quantity">0</string>
-    <plurals name="results_count">
-        <item quantity="one">%d result</item>
-        <item quantity="other">%d results</item>
-    </plurals>
-    <string name="household_size">Household size</string>
-    <string name="error_household_required">Household size is required</string>
-    <string name="error_household_min_dynamic">Household size must be at least %1$d</string>
-    <string name="error_household_max_dynamic">Household size must be no more than %1$d</string>
-    <string name="error_household_number">Household size must be a number</string>
-    <string name="error_kit_name_required">Kit name is required</string>
-    <string name="error_frequency_required">Notification frequency is required</string>
-    <string name="missing_kit_id">Missing kit ID</string>
-    <string name="water_quantity_helper">Enter total amount of water in gallons.</string>
-    <string name="inventory_report_title">Emergency Preparedness Inventory Report</string>
-    <string name="summary">Summary</string>
-    <string name="readiness_check">Readiness Check</string>
-    <string name="expiration_section">Time-Sensitive Items</string>
-    <string name="full_inventory">Full Inventory</string>
-    <string name="sources">Sources</string>
-    <string name="community_resources">Community Resources</string>
-    <string name="generated_format">Generated: %1$s</string>
-    <string name="household_size_format">Household Size: %1$d</string>
-    <string name="export_csv">Export CSV</string>
-    <string name="copy_summary">Copy Summary</string>
-    <string name="soonest_first">Soonest first</string>
-    <string name="sorted_a_Z">Sorted A-Z</string>
+
+  <!-- ===================================================== -->
+  <!-- 1. App Identity & Branding -->
+  <!-- ===================================================== -->
+
+  <string name="app_name">EmergencyPreparednessManager</string>
+  <string name="emergency_preparedness_manager">Emergency Preparedness Manager</string>
+  <string name="build_kits_track_supplies_and_stay_ready">
+        Build kits, track supplies, and stay ready.
+    </string>
+
+  <!-- ===================================================== -->
+  <!-- 2. Navigation & Screen Titles -->
+  <!-- ===================================================== -->
+
+  <string name="manage_kits">Manage Kits</string>
+  <string name="kits">Kits</string>
+  <string name="items">Items</string>
+  <string name="kit_details">Kit Details</string>
+  <string name="reports">Reports</string>
+  <string name="settings">Settings</string>
+  <string name="readiness_check">Readiness Check</string>
+  <string name="search_supplies">Search Supplies</string>
+  <string name="search">Search</string>
+
+  <!-- ===================================================== -->
+  <!-- 3. Common Actions -->
+  <!-- ===================================================== -->
+
+  <string name="add">Add</string>
+  <string name="delete">Delete</string>
+  <string name="undo">Undo</string>
+  <string name="OK">OK</string>
+
+  <string name="add_kit">Add Kit</string>
+  <string name="create_kit">Create Kit</string>
+  <string name="save_kit">Save Kit</string>
+  <string name="edit_kit">Edit Kit</string>
+  <string name="delete_kit">Delete Kit</string>
+
+  <string name="add_item">Add Item</string>
+  <string name="save_item">Save Item</string>
+  <string name="edit_item">Edit item</string>
+  <string name="delete_item">Delete Item</string>
+
+  <string name="increase_quantity">Increase quantity</string>
+  <string name="decrease_quantity">Decrease quantity</string>
+
+  <!-- ===================================================== -->
+  <!-- 4. Empty States & Search States -->
+  <!-- ===================================================== -->
+
+  <string name="no_kits_yet">No kits yet</string>
+  <string name="no_items_in_kit">No items in this kit yet.</string>
+  <string name="add_your_first_item">Add your first item to get started.</string>
+  <string name="create_your_first_kit_to_start_tracking_supplies">
+        Create your first kit to start tracking supplies.
+    </string>
+
+  <string name="no_matching_kits">No matching kits</string>
+  <string name="no_matching_items">No matching items</string>
+  <string name="try_different_search">Try a different search term.</string>
+
+  <string name="type_to_search">Type to search</string>
+  <string name="search_items">Search items…</string>
+  <string name="search_kits">Search kits…</string>
+
+  <!-- ===================================================== -->
+  <!-- 5. Forms, Fields & Validation -->
+  <!-- ===================================================== -->
+
+  <string name="kit_name">Kit Name</string>
+  <string name="kit_name_2">Kit name</string>
+  <string name="kit_name_required">Kit name is required</string>
+
+  <string name="item_name">Item Name</string>
+  <string name="item_name_required">Item name is required</string>
+
+  <string name="location">Location</string>
+  <string name="location_optional">Location (optional)</string>
+
+  <string name="notes_optional">Notes (optional)</string>
+
+  <string name="category">Category</string>
+  <string name="category_required">Select a category</string>
+
+  <string name="quantity">Quantity</string>
+  <string name="quantity_invalid">Quantity must be a positive number</string>
+
+  <string name="expiration_date">Expiration Date</string>
+  <string name="expiration_date_optional">Expiration date (optional)</string>
+  <string name="expiration_required_for_reminder">
+        Expiration date is required for reminders
+    </string>
+
+  <string name="days_before_expiration">Remind me (days before)</string>
+  <string name="days_before_invalid">Days before must be 0 or more.</string>
+
+  <string name="select_expiration_date">Select Expiration Date</string>
+
+  <string name="household_size">Household Size</string>
+  <string name="household_size_format">Household Size: %d</string>
+
+  <string name="missing_kit_id">Missing kit ID</string>
+
+  <!-- ===================================================== -->
+  <!-- 6. Notifications & Reminders -->
+  <!-- ===================================================== -->
+
+  <string name="enable_kit_notifications">Enable kit reminders</string>
+  <string name="notification_frequency">Reminder frequency</string>
+  <string name="frequency_monthly">Monthly</string>
+  <string name="frequency_quarterly">Quarterly</string>
+  <string name="frequency_yearly">Yearly</string>
+  <string name="frequency_required">Select a notification frequency</string>
+
+  <string name="notification_time_global_hint">
+        Notification time is controlled in Settings
+    </string>
+
+  <string name="enable_expiration_reminder">Enable expiration reminder</string>
+  <string name="notify_when_zero">Notify when quantity reaches zero</string>
+
+  <string name="kit_notification_title">Reminder: Check Kit %s</string>
+  <string name="kit_notification_message">Time to review your kit: %s</string>
+
+  <string name="item_expiration_title">Item Expiration Reminder: %s</string>
+  <string name="item_expiration_message">Item %s expires on %s</string>
+
+  <string name="item_zero_title">Out of Stock: %s</string>
+  <string name="item_zero_message">Item %s has reached zero quantity</string>
+
+  <!-- ===================================================== -->
+  <!-- 7. Status, Prefixes & Labels -->
+  <!-- ===================================================== -->
+
+  <string name="kit_prefix">Kit: %s</string>
+  <string name="location_prefix">Location: %s</string>
+  <string name="category_prefix">Category: %s</string>
+  <string name="qty_prefix">Qty: %d</string>
+  <string name="status_prefix">Status: %s</string>
+  <string name="exp_prefix">Exp: %s</string>
+
+  <string name="no_expiration">No expiration</string>
+  <string name="expires_format">Expires: %s</string>
+
+  <string name="expired">Expired</string>
+  <string name="expiring_soon">Expiring Soon</string>
+
+  <!-- ===================================================== -->
+  <!-- 8. Reports -->
+  <!-- ===================================================== -->
+
+  <string name="generated">Generated</string>
+  <string name="generated_format">Generated: %s</string>
+  <string name="summary">Summary</string>
+  <string name="readiness">Readiness</string>
+
+  <string name="full_inventory">Full Inventory (Sorted A-Z)</string>
+  <string name="time_sensitive_items">Time-Sensitive Items (Soonest first)</string>
+
+  <string name="sources">Sources</string>
+  <string name="community_resources">Community Resources</string>
+
+  <string name="report_summary_format">
+        Total Kits: %d\nTotal Tracked Items: %d\nItems Expiring in 30 Days: %d\nExpired Items: %d
+    </string>
+
+  <string name="total_kits">Total Kits</string>
+  <string name="total_tracked_items">Total Tracked Items</string>
+  <string name="items_expiring_in_30_days">Items Expiring in 30 Days</string>
+  <string name="expired_items">Expired Items</string>
+
+  <string name="total_kits_formatted">Total Kits: %d</string>
+  <string name="total_tracked_items_formatted">Total Tracked Items: %d</string>
+  <string name="items_expiring_in_30_days_formatted">
+        Items Expiring in 30 Days: %d
+    </string>
+  <string name="expired_items_formatted">Expired Items: %d</string>
+
+  <!-- ===================================================== -->
+  <!-- 9. Water & Food Readiness -->
+  <!-- ===================================================== -->
+
+  <string name="water">Water</string>
+  <string name="food">Food</string>
+  <string name="rating">Rating</string>
+
+  <string name="water_not_detected">Water category not detected</string>
+  <string name="add_water_items">
+        Add items in the water category (assumed gallons)
+    </string>
+  <string name="water_quantity_helper">
+        Enter total amount of water in gallons.
+    </string>
+
+  <string name="rating_below_minimum">Rating: Below minimum</string>
+  <string name="rating_meets_minimum">Rating: Meets minimum</string>
+  <string name="rating_meets_recommended">Rating: Meets recommended</string>
+  <string name="rating_well_prepared">Rating: You\'re well prepared!</string>
+
+  <string name="below_minimum">Below minimum</string>
+  <string name="meets_minimum">Meets minimum</string>
+  <string name="meets_recommended">Meets recommended</string>
+  <string name="well_prepared">You\'re well prepared!</string>
+
+  <string name="rating_formatted">Rating: %s</string>
+  <string name="rating_not_enough_data">
+        Rating: Not enough data to estimate automatically.
+    </string>
+
+  <string name="see_recommendations">See recommendations below</string>
+  <string name="recommendations">Recommendations</string>
+
+  <string name="food_min_3_days">
+        • Food: At least 3 days of non-perishable food for your household
+    </string>
+  <string name="food_rec_14_days">
+        • Food: At least 14 days of non-perishable food for your household
+    </string>
+  <string name="food_prep_30_days">
+        • Food: At least 30 days of non-perishable food for your household
+    </string>
+
+  <string name="recommendations_min_label">Minimum (3 days)</string>
+  <string name="recommendations_rec_label">Recommended (2 weeks)</string>
+  <string name="recommendations_prep_label">Well-prepared (30 days)</string>
+
+  <!-- ===================================================== -->
+  <!-- 10. CSV & Sharing -->
+  <!-- ===================================================== -->
+
+  <string name="export_csv">Export CSV</string>
+  <string name="copy_summary">Copy Summary</string>
+  <string name="share_report">Share Report</string>
+
+  <string name="report_not_ready">Report is not ready yet</string>
+  <string name="saved_to_downloads">Saved to Downloads: %s</string>
+
+  <string name="csv_export_failed">CSV export failed</string>
+  <string name="csv_create_failed">Could not create CSV file</string>
+  <string name="csv_write_failed">Could not write CSV file</string>
+
+  <string name="clipboard_unavailable">Clipboard is not available</string>
+  <string name="summary_copied">Summary copied to clipboard</string>
+
+  <string name="report_share_subject">Emergency Preparedness Report</string>
+  <string name="report_share_text">
+        Attached is my emergency preparedness inventory report (CSV format).
+    </string>
+  <string name="share_no_app_available">
+        No app available to share the report
+    </string>
+  <string name="emergency_preparedness_report">
+        Emergency Preparedness Inventory Report
+    </string>
+
+  <string name="csv_header_item">Item</string>
+  <string name="csv_header_kit">Kit</string>
+  <string name="csv_header_location">Location</string>
+  <string name="csv_header_category">Category</string>
+  <string name="csv_header_quantity">Quantity</string>
+  <string name="csv_header_expiration">Expiration</string>
+  <string name="csv_header_status">Status</string>
+
+  <string name="header_item">Item</string>
+  <string name="header_kit">Kit</string>
+  <string name="header_category">Category</string>
+  <string name="header_quantity">Qty</string>
+
+  <!-- ===================================================== -->
+  <!-- 11. Category Management -->
+  <!-- ===================================================== -->
+
+  <string name="add_category_ellipsis">Add category…</string>
+  <string name="add_category">Add Category</string>
+  <string name="category_name">Category Name</string>
+  <string name="category_name_required">Category name is required</string>
+  <string name="category_already_exists">Category already exists</string>
+  <string name="category_added">Category added</string>
+
+  <!-- ===================================================== -->
+  <!-- 12. Deletion & Undo Messages -->
+  <!-- ===================================================== -->
+
+  <string name="cannot_delete_kit_with_items">
+        Cannot delete a kit that has items
+    </string>
+
+  <string name="kit_deleted">Kit deleted</string>
+  <string name="kit_removed">Kit removed</string>
+  <string name="kit_restored">Kit restored</string>
+
+  <string name="item_removed">Item removed</string>
+  <string name="item_deleted">Item deleted</string>
+  <string name="item_restored">Item restored</string>
+
+  <string name="permanent_delete_warning">
+        This will permanently delete the %s.
+    </string>
+  <string name="cannot_be_undone">This action cannot be undone.</string>
+
+  <string name="loading_delete_protection">
+        Loading delete protection, try again in a moment
+    </string>
+
+  <!-- ===================================================== -->
+  <!-- 13. Preferences -->
+  <!-- ===================================================== -->
+
+  <string name="pref_category_appearance">Appearance</string>
+  <string name="pref_category_notifications">Notifications</string>
+  <string name="pref_category_about">About</string>
+  <string name="pref_category_household">Household</string>
+
+  <string name="pref_key_theme">pref_theme</string>
+  <string name="pref_key_notifications_enabled">
+        pref_notifications_enabled
+    </string>
+  <string name="pref_key_notification_time">pref_notification_time</string>
+  <string name="pref_key_version">pref_version</string>
+  <string name="pref_key_household_size">pref_household_size</string>
+
+  <string name="pref_theme_title">Theme</string>
+  <string name="pref_theme_value_system">system</string>
+  <string name="pref_theme_value_light">light</string>
+  <string name="pref_theme_value_dark">dark</string>
+
+  <string name="pref_notifications_enabled_title">
+        Enable notifications
+    </string>
+  <string name="pref_notification_time_title">
+        Notification time
+    </string>
+  <string name="pref_notification_time_summary_placeholder">
+        Tap to set
+    </string>
+
+  <string name="pref_version_title">App version</string>
+  <string name="pref_version_summary_placeholder">Loading…</string>
+
+  <string name="pref_household_size_title">Household size</string>
+  <string name="tracked_water">Tracked water</string>
+
+  <string-array name="pref_theme_entries">
+    <item>System default</item>
+    <item>Light</item>
+    <item>Dark</item>
+  </string-array>
+
+  <string-array name="pref_theme_values">
+    <item>system</item>
+    <item>light</item>
+    <item>dark</item>
+  </string-array>
+
+  <!-- ===================================================== -->
+  <!-- 14. Misc -->
+  <!-- ===================================================== -->
+
+  <string name="placeholder_item">Item name</string>
+  <string name="placeholder_kit">Kit name</string>
+  <string name="placeholder_category">Category</string>
+  <string name="placeholder_quantity">0</string>
+  <string name="kit_item">Kit item</string>
+
+  <!-- ===================================================== -->
+  <!-- 15. Plurals -->
+  <!-- ===================================================== -->
+
+  <plurals name="results_count">
+    <item quantity="one">%d result</item>
+    <item quantity="other">%d results</item>
+  </plurals>
+
+  <plurals name="tracked_water_gallons">
+    <item quantity="one">Tracked: %d gallon</item>
+    <item quantity="other">Tracked: %d gallons</item>
+  </plurals>
+
+  <plurals name="gallons">
+    <item quantity="one">%d gallon</item>
+    <item quantity="other">%d gallons</item>
+  </plurals>
+
+  <plurals name="water_min_3_days">
+    <item quantity="one">Minimum (3 days): %d gallon</item>
+    <item quantity="other">Minimum (3 days): %d gallons</item>
+  </plurals>
+
+  <plurals name="water_rec_14_days">
+    <item quantity="one">Recommended (2 weeks): %d gallon</item>
+    <item quantity="other">Recommended (2 weeks): %d gallons</item>
+  </plurals>
+
+  <plurals name="water_prep_30_days">
+    <item quantity="one">Well-prepared (30 days): %d gallon</item>
+    <item quantity="other">Well-prepared (30 days): %d gallons</item>
+  </plurals>
+
+  <plurals name="recommendations_water">
+    <item quantity="one">• Water: %d gallon</item>
+    <item quantity="other">• Water: %d gallons</item>
+  </plurals>
+
 </resources>
