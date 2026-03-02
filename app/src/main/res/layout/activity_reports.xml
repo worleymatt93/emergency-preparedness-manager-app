@@ -1,231 +1,225 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="?attr/colorSurface"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/main"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  tools:context=".ui.activities.ReportsActivity">
+
+  <!-- Toolbar -->
+  <androidx.core.widget.NestedScrollView
+    android:id="@+id/scrollView"
+    android:layout_width="0dp"
+    android:layout_height="0dp"
     android:fillViewport="true"
-    android:padding="16dp">
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/toolbar"
+    app:layout_constraintWidth_max="488dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:paddingTop="16dp"
+      android:paddingBottom="32dp"
+      android:paddingHorizontal="16dp">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="0dp"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimaryContainer"
-            android:elevation="4dp"
-            app:title="@string/reports"
-            app:titleTextColor="?attr/colorOnPrimaryContainer"
-            app:navigationIcon="@drawable/baseline_arrow_back_24"
-            app:navigationIconTint="?attr/colorOnPrimaryContainer"
-            app:iconTint="?attr/colorOnPrimaryContainer"
-            app:popupTheme="@style/MyToolbarPopupMenu"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+      <!-- Generated Timestamp -->
+      <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvExpiration"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:nestedScrollingEnabled="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvExpirationTitle"
+        tools:listitem="@layout/row_report_item" />
 
-        <!-- Header -->
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tvReportTitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/inventory_report_title"
-            android:textAppearance="?attr/textAppearanceTitleLarge"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-        
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tvGenerated"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:textAppearance="?attr/textAppearanceBodyMedium"
-            app:layout_constraintTop_toBottomOf="@+id/tvReportTitle"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-        
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tvHousehold"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textAppearance="?attr/textAppearanceBodyMedium"
-            app:layout_constraintTop_toBottomOf="@+id/tvGenerated"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+      <!-- Household size -->
+      <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvInventory"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:nestedScrollingEnabled="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvInventoryTitle"
+        tools:listitem="@layout/row_report_item" />
 
-        <!-- Summary -->
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tvSummaryHeader"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/summary"
-            android:textAppearance="?attr/textAppearanceTitleMedium"
-            app:layout_constraintTop_toBottomOf="@+id/tvHousehold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+      <!-- Summary section -->
+      <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvGenerated"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/textAppearanceBodySmall"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Generated: 2026-02-26 15:00" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tvSummaryBody"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:textAppearance="?attr/textAppearanceBodyMedium"
-            app:layout_constraintTop_toBottomOf="@+id/tvSummaryHeader"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+      <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvHousehold"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="?attr/colorOnSurface"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvGenerated"
+        tools:text="Household size: 4" />
 
-        <!-- Readiness -->
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tvReadinessHeader"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/readiness_check"
-            android:textAppearance="?attr/textAppearanceTitleMedium"
-            app:layout_constraintTop_toBottomOf="@+id/tvSummaryBody"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+      <!-- Readiness section -->
+      <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvSummaryTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/summary"
+        android:textAppearance="?attr/textAppearanceTitleMedium"
+        android:textColor="?attr/colorPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvHousehold" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tvReadinessBody"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:textAppearance="?attr/textAppearanceBodyMedium"
-            app:layout_constraintTop_toBottomOf="@+id/tvReadinessHeader"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+      <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvSummaryBody"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="?attr/colorOnSurface"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvSummaryTitle"
+        tools:text="Total kits: 3\nTotal tracked items: 45\nItems expiring in 30 days: 2\nExpired items: 1" />
 
-        <!-- Expiration Section (container gets hidden when empty) -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/expirationSection"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            app:layout_constraintTop_toBottomOf="@+id/tvReadinessBody"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+      <!-- Expiration section -->
+      <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvReadinessTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/readiness_check"
+        android:textAppearance="?attr/textAppearanceTitleMedium"
+        android:textColor="?attr/colorPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvSummaryBody" />
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tvExpirationHeader"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@string/expiration_section"
-                android:textAppearance="?attr/textAppearanceTitleMedium"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+      <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvReadinessBody"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="?attr/colorOnSurface"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvReadinessTitle"
+        tools:text="Water readiness: Well prepared\nTracked water gallons: 120\nRating: Well prepared" />
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tvExpirationSubtitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="@string/soonest_first"
-                android:textAppearance="?attr/textAppearanceBodySmall"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                app:layout_constraintTop_toBottomOf="@+id/tvExpirationHeader"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-            
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvExpiration"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:nestedScrollingEnabled="false"
-                app:layout_constraintTop_toBottomOf="@+id/tvExpirationSubtitle"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+      <!-- Full Inventory section -->
+      <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvExpirationTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/time_sensitive_items"
+        android:textAppearance="?attr/textAppearanceTitleMedium"
+        android:textColor="?attr/colorPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvReadinessBody" />
 
-        <!-- Full Inventory -->
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tvInventoryHeader"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:nestedScrollingEnabled="false"
-            android:text="@string/full_inventory"
-            android:textAppearance="?attr/textAppearanceTitleMedium"
-            app:layout_constraintTop_toBottomOf="@+id/expirationSection"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+      <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvInventoryTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/full_inventory"
+        android:textAppearance="?attr/textAppearanceTitleMedium"
+        android:textColor="?attr/colorPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rvExpiration" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tvInventorySubtitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:text="@string/sorted_a_Z"
-            android:textAppearance="?attr/textAppearanceBodySmall"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            app:layout_constraintTop_toBottomOf="@+id/tvInventoryHeader"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-        
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvInventory"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:nestedScrollingEnabled="false"
-            app:layout_constraintTop_toBottomOf="@+id/tvInventorySubtitle"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+      <!-- Sources section -->
+      <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvSourcesTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="@string/sources"
+        android:textAppearance="?attr/textAppearanceTitleMedium"
+        android:textColor="?attr/colorPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rvInventory" />
 
-        <!-- Sources -->
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tvSourcesHeader"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:text="@string/sources"
-            android:textAppearance="?attr/textAppearanceTitleMedium"
-            app:layout_constraintTop_toBottomOf="@+id/rvInventory"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+      <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvSourcesBody"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="?attr/colorOnSurface"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvSourcesTitle" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tvSourcesBody"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:textAppearance="?attr/textAppearanceBodyMedium"
-            app:layout_constraintTop_toBottomOf="@+id/tvSourcesHeader"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+      <!-- Community section -->
+      <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvCommunityTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/community_resources"
+        android:textAppearance="?attr/textAppearanceTitleMedium"
+        android:textColor="?attr/colorPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvSourcesBody" />
 
-        <!-- Community -->
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tvCommunityHeader"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:text="@string/community_resources"
-            android:textAppearance="?attr/textAppearanceTitleMedium"
-            app:layout_constraintTop_toBottomOf="@+id/tvSourcesBody"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-        
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tvCommunityBody"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:textAppearance="?attr/textAppearanceBodyMedium"
-            app:layout_constraintTop_toBottomOf="@+id/tvCommunityHeader"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+      <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvCommunityBody"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="?attr/colorOnSurface"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvCommunityTitle" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.core.widget.NestedScrollView>
+  </androidx.core.widget.NestedScrollView>
+
+  <!-- Scrollable content -->
+  <com.google.android.material.appbar.MaterialToolbar
+    android:id="@+id/toolbar"
+    android:layout_width="0dp"
+    android:layout_height="85dp"
+    android:background="?attr/colorPrimaryContainer"
+    android:elevation="4dp"
+    android:gravity="center_vertical"
+    app:contentInsetEnd="16dp"
+    app:contentInsetStart="16dp"
+    app:contentInsetStartWithNavigation="0dp"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:menu="@menu/menu_reports"
+    app:navigationIcon="@drawable/baseline_arrow_back_24"
+    app:navigationIconTint="?attr/colorOnPrimaryContainer"
+    app:popupTheme="@style/MyToolbarPopupMenu"
+    app:title="@string/reports"
+    app:titleCentered="true"
+    app:titleTextColor="?attr/colorOnPrimaryContainer" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,111 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/cardRoot"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/cardRoot"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:layout_marginVertical="4dp"
+  android:clickable="true"
+  android:focusable="true"
+  android:foreground="?attr/selectableItemBackground"
+  app:cardBackgroundColor="?attr/colorSurface"
+  app:cardCornerRadius="12dp"
+  app:cardElevation="2dp"
+  app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Medium">
+
+  <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginVertical="4dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp"
-    android:clickable="true"
-    android:focusable="true"
-    android:foreground="?attr/selectableItemBackground"
-    app:cardBackgroundColor="?attr/colorSurface"
-    app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Medium">
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
+    <!-- Row 1: Item name (left) -->
+    <LinearLayout
+      android:id="@+id/quantityControls"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:gravity="center_vertical"
+      android:orientation="horizontal"
+      app:layout_constraintBottom_toBottomOf="@+id/itemMetaText"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintTop_toTopOf="@+id/itemMetaText">
+
+      <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnDecrement"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingStart="12dp"
-        android:paddingTop="10dp"
-        android:paddingEnd="12dp"
-        android:paddingBottom="10dp">
+        android:contentDescription="@string/decrease_quantity"
+        app:icon="@drawable/baseline_remove_24"
+        app:iconSize="20dp"
+        app:iconTint="?attr/colorOnSurface" />
 
-        <!-- Row 1: Item name (left) -->
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/itemNameText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:textAppearance="?attr/textAppearanceTitleMedium"
-            android:textColor="?attr/colorOnSurface"
-            android:text="@string/kit_item"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/qtySummary"
-            app:layout_constraintHorizontal_bias="0"
-            tools:text="Water" />
+      <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnIncrement"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/increase_quantity"
+        app:icon="@drawable/baseline_add_24"
+        app:iconSize="20dp"
+        app:iconTint="?attr/colorOnSurface" />
 
-        <!-- Row 1: Qty summary (right): "Qty: 3" -->
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/qtySummary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?attr/textAppearanceLabelLarge"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:contentDescription="@string/quantity"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Qty: 3" />
+      <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/quantityText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:contentDescription="@string/quantity"
+        android:textAppearance="?attr/textAppearanceTitleSmall"
+        android:textColor="?attr/colorOnSurface"
+        tools:text="3" />
 
-        <!-- Row 2: Expiration (left) -->
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/itemMetaText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textAppearance="?attr/textAppearanceBodyMedium"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:text="@string/expiration_date"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/itemNameText"
-            app:layout_constraintEnd_toStartOf="@+id/quantityControls"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:text="Expires: 03/01/2026" />
+    </LinearLayout>
 
-        <!-- Row 2: Quantity controls (right) -->
-        <LinearLayout
-            android:id="@+id/quantityControls"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/itemMetaText"
-            app:layout_constraintBottom_toBottomOf="@+id/itemMetaText">
+    <!-- Row 1: Qty summary (right): "Qty: 3" -->
+    <com.google.android.material.textview.MaterialTextView
+      android:id="@+id/qtySummary"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:contentDescription="@string/quantity"
+      android:textAppearance="?attr/textAppearanceLabelLarge"
+      android:textColor="?attr/colorOnSurfaceVariant"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      tools:text="Qty: 3" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnDecrement"
-                style="@style/Widget.Material3.Button.IconButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:contentDescription="@string/decrease_quantity"
-                app:icon="@drawable/baseline_remove_24"
-                app:iconTint="?attr/colorOnSurface"
-                app:iconSize="20dp" />
+    <!-- Row 2: Expiration (left) -->
+    <com.google.android.material.textview.MaterialTextView
+      android:id="@+id/itemMetaText"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="4dp"
+      android:text="@string/expiration_date"
+      android:textAppearance="?attr/textAppearanceBodyMedium"
+      android:textColor="?attr/colorOnSurfaceVariant"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toStartOf="@+id/quantityControls"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/itemNameText"
+      tools:text="Expires: 03/01/2026" />
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/quantityText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="10dp"
-                android:textAppearance="?attr/textAppearanceTitleSmall"
-                android:textColor="?attr/colorOnSurface"
-                android:contentDescription="@string/quantity"
-                tools:text="3" />
+    <!-- Row 2: Quantity controls (right) -->
+    <com.google.android.material.textview.MaterialTextView
+      android:id="@+id/itemNameText"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:text="@string/kit_item"
+      android:textAppearance="?attr/textAppearanceTitleMedium"
+      android:textColor="?attr/colorOnSurface"
+      app:layout_constraintEnd_toStartOf="@+id/qtySummary"
+      app:layout_constraintHorizontal_bias="0"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      tools:text="Water" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnIncrement"
-                style="@style/Widget.Material3.Button.IconButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:contentDescription="@string/increase_quantity"
-                app:icon="@drawable/baseline_add_24"
-                app:iconTint="?attr/colorOnSurface"
-                app:iconSize="20dp" />
-
-        </LinearLayout>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+  </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>
