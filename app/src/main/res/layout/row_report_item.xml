@@ -1,102 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/card"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:id="@+id/card"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:layout_marginBottom="8dp"
+  app:cardUseCompatPadding="true">
+
+  <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    app:cardUseCompatPadding="true">
+    android:padding="12dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="12dp">
+    <!-- Line 1: Item name -->
+    <com.google.android.material.textview.MaterialTextView
+      android:id="@+id/tvItemName"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:textAppearance="?attr/textAppearanceTitleSmall"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Line 1: Item name -->
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tvItemName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:textAppearance="?attr/textAppearanceTitleSmall"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+    <!-- Line 2: Kit (left) and Location (right) -->
+    <com.google.android.material.textview.MaterialTextView
+      android:id="@+id/tvKit"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="4dp"
+      android:ellipsize="end"
+      android:maxLines="1"
+      android:textAppearance="?attr/textAppearanceBodySmall"
+      app:layout_constraintEnd_toStartOf="@+id/tvLocation"
+      app:layout_constraintHorizontal_chainStyle="spread"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/tvItemName" />
 
-        <!-- Line 2: Kit (left) and Location (right) -->
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tvKit"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textAppearance="?attr/textAppearanceBodySmall"
-            app:layout_constraintTop_toBottomOf="@+id/tvItemName"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/tvLocation"
-            app:layout_constraintHorizontal_chainStyle="spread" />
+    <com.google.android.material.textview.MaterialTextView
+      android:id="@+id/tvLocation"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="4dp"
+      android:ellipsize="end"
+      android:gravity="end"
+      android:maxLines="1"
+      android:textAppearance="?attr/textAppearanceBodySmall"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/tvItemName" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tvLocation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:ellipsize="end"
-            android:gravity="end"
-            android:maxLines="1"
-            android:textAppearance="?attr/textAppearanceBodySmall"
-            app:layout_constraintTop_toBottomOf="@+id/tvItemName"
-            app:layout_constraintEnd_toEndOf="parent" />
+    <!-- Line 3: Category (left) and Qty (right) -->
+    <com.google.android.material.textview.MaterialTextView
+      android:id="@+id/tvCategory"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="4dp"
+      android:ellipsize="end"
+      android:maxLines="1"
+      android:textAppearance="?attr/textAppearanceBodySmall"
+      app:layout_constraintEnd_toStartOf="@+id/tvQty"
+      app:layout_constraintHorizontal_chainStyle="spread"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/tvKit" />
 
-        <!-- Line 3: Category (left) and Qty (right) -->
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tvCategory"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textAppearance="?attr/textAppearanceBodySmall"
-            app:layout_constraintTop_toBottomOf="@+id/tvKit"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/tvQty"
-            app:layout_constraintHorizontal_chainStyle="spread" />
-        
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tvQty"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:gravity="end"
-            android:textAppearance="?attr/textAppearanceBodySmall"
-            app:layout_constraintTop_toBottomOf="@+id/tvKit"
-            app:layout_constraintEnd_toEndOf="parent" />
+    <com.google.android.material.textview.MaterialTextView
+      android:id="@+id/tvQty"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="4dp"
+      android:gravity="end"
+      android:textAppearance="?attr/textAppearanceBodySmall"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/tvKit" />
 
-        <!-- Line 4: Status (left) and Exp (right) -->
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tvStatus"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textAppearance="?attr/textAppearanceBodySmall"
-            app:layout_constraintTop_toBottomOf="@+id/tvCategory"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/tvExp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintHorizontal_chainStyle="spread" />
+    <!-- Line 4: Status (left) and Exp (right) -->
+    <com.google.android.material.textview.MaterialTextView
+      android:id="@+id/tvStatus"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="4dp"
+      android:ellipsize="end"
+      android:maxLines="1"
+      android:textAppearance="?attr/textAppearanceBodySmall"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toStartOf="@+id/tvExp"
+      app:layout_constraintHorizontal_chainStyle="spread"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/tvCategory" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tvExp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:gravity="end"
-            android:textAppearance="?attr/textAppearanceBodySmall"
-            app:layout_constraintTop_toBottomOf="@+id/tvCategory"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <com.google.android.material.textview.MaterialTextView
+      android:id="@+id/tvExp"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="4dp"
+      android:gravity="end"
+      android:textAppearance="?attr/textAppearanceBodySmall"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/tvCategory" />
+  </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>
