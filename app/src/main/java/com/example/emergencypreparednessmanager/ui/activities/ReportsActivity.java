@@ -68,7 +68,6 @@ import java.util.Objects;
  */
 public class ReportsActivity extends AppCompatActivity {
 
-  private static final String TAG = "ReportsActivity";
   private final SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
   private MaterialToolbar toolbar;
   private MaterialTextView tvGenerated;
