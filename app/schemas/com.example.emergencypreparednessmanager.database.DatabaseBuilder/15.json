@@ -1,0 +1,160 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 15,
+    "identityHash": "060be7d51d01b0ffba46fdb843cc0833",
+    "entities": [
+      {
+        "tableName": "Kits",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`kitID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `kitName` TEXT, `location` TEXT, `notes` TEXT, `notificationsEnabled` INTEGER NOT NULL, `notificationFrequency` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "kitID",
+            "columnName": "kitID",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kitName",
+            "columnName": "kitName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "location",
+            "columnName": "location",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "notes",
+            "columnName": "notes",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "notificationsEnabled",
+            "columnName": "notificationsEnabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "notificationFrequency",
+            "columnName": "notificationFrequency",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "kitID"
+          ]
+        }
+      },
+      {
+        "tableName": "KitItems",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`itemID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `kitID` INTEGER NOT NULL, `itemName` TEXT, `quantity` INTEGER NOT NULL, `categoryID` INTEGER NOT NULL, `expirationDate` TEXT, `notes` TEXT, `expirationRemindersEnabled` INTEGER NOT NULL, `notifyDaysBefore` INTEGER NOT NULL, `notifyOnZero` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "itemID",
+            "columnName": "itemID",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kitID",
+            "columnName": "kitID",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "itemName",
+            "columnName": "itemName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "quantity",
+            "columnName": "quantity",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "categoryID",
+            "columnName": "categoryID",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expirationDate",
+            "columnName": "expirationDate",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "notes",
+            "columnName": "notes",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "expirationRemindersEnabled",
+            "columnName": "expirationRemindersEnabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "notifyDaysBefore",
+            "columnName": "notifyDaysBefore",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "notifyOnZero",
+            "columnName": "notifyOnZero",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "itemID"
+          ]
+        }
+      },
+      {
+        "tableName": "Categories",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`categoryID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `categoryName` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "categoryID",
+            "columnName": "categoryID",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "categoryName",
+            "columnName": "categoryName",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "categoryID"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_Categories_categoryName",
+            "unique": true,
+            "columnNames": [
+              "categoryName"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Categories_categoryName` ON `${TABLE_NAME}` (`categoryName`)"
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '060be7d51d01b0ffba46fdb843cc0833')"
+    ]
+  }
+}
