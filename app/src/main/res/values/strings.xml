@@ -364,6 +364,10 @@
   <string name="placeholder_category">Category</string>
   <string name="placeholder_quantity">0</string>
   <string name="kit_item">Kit item</string>
+  <string name="kit_added">Kit added</string>
+  <string name="kit_updated">Kit updated</string>
+  <string name="item_added">Item added</string>
+  <string name="item_updated">Item updated</string>
 
   <!-- ===================================================== -->
   <!-- 15. Plurals -->
