@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+  xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
   android:id="@+id/cardRoot"
@@ -23,49 +24,20 @@
     android:paddingEnd="12dp">
 
     <!-- Row 1: Item name (left) -->
-    <LinearLayout
-      android:id="@+id/quantityControls"
-      android:layout_width="wrap_content"
+    <com.google.android.material.textview.MaterialTextView
+      android:id="@+id/itemNameText"
+      android:layout_width="0dp"
       android:layout_height="wrap_content"
-      android:gravity="center_vertical"
-      android:orientation="horizontal"
-      app:layout_constraintBottom_toBottomOf="@+id/itemMetaText"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintTop_toTopOf="@+id/itemMetaText">
+      android:text="@string/kit_item"
+      android:textAppearance="?attr/textAppearanceTitleMedium"
+      android:textColor="?attr/colorOnSurface"
+      app:layout_constraintEnd_toStartOf="@+id/qtySummary"
+      app:layout_constraintHorizontal_bias="0"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      tools:text="Water" />
 
-      <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnDecrement"
-        style="@style/Widget.Material3.Button.IconButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/decrease_quantity"
-        app:icon="@drawable/baseline_remove_24"
-        app:iconSize="20dp"
-        app:iconTint="?attr/colorOnSurface" />
-
-      <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnIncrement"
-        style="@style/Widget.Material3.Button.IconButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/increase_quantity"
-        app:icon="@drawable/baseline_add_24"
-        app:iconSize="20dp"
-        app:iconTint="?attr/colorOnSurface" />
-
-      <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/quantityText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="10dp"
-        android:contentDescription="@string/quantity"
-        android:textAppearance="?attr/textAppearanceTitleSmall"
-        android:textColor="?attr/colorOnSurface"
-        tools:text="3" />
-
-    </LinearLayout>
-
-    <!-- Row 1: Qty summary (right): "Qty: 3" -->
+    <!-- Row 1: Qty summary (right): -->
     <com.google.android.material.textview.MaterialTextView
       android:id="@+id/qtySummary"
       android:layout_width="wrap_content"
@@ -93,18 +65,47 @@
       tools:text="Expires: 03/01/2026" />
 
     <!-- Row 2: Quantity controls (right) -->
-    <com.google.android.material.textview.MaterialTextView
-      android:id="@+id/itemNameText"
-      android:layout_width="0dp"
+    <LinearLayout
+      android:id="@+id/quantityControls"
+      android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="@string/kit_item"
-      android:textAppearance="?attr/textAppearanceTitleMedium"
-      android:textColor="?attr/colorOnSurface"
-      app:layout_constraintEnd_toStartOf="@+id/qtySummary"
-      app:layout_constraintHorizontal_bias="0"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      tools:text="Water" />
+      android:gravity="center_vertical"
+      android:orientation="horizontal"
+      app:layout_constraintBottom_toBottomOf="@+id/itemMetaText"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintTop_toTopOf="@+id/itemMetaText">
+
+      <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnDecrement"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/decrease_quantity"
+        app:icon="@drawable/baseline_remove_24"
+        app:iconSize="20dp"
+        app:iconTint="?attr/colorOnSurface" />
+
+      <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/quantityText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:contentDescription="@string/quantity"
+        android:textAppearance="?attr/textAppearanceTitleSmall"
+        android:textColor="?attr/colorOnSurface"
+        tools:text="3" />
+
+      <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnIncrement"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/increase_quantity"
+        app:icon="@drawable/baseline_add_24"
+        app:iconSize="20dp"
+        app:iconTint="?attr/colorOnSurface" />
+
+    </LinearLayout>
 
   </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

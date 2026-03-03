@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+  xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
@@ -8,12 +9,14 @@
   app:cardElevation="2dp"
   app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Medium">
 
+  <!-- Kit Summary Card -->
   <LinearLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:padding="16dp"
     android:orientation="vertical">
 
+    <!-- Kit Name -->
     <com.google.android.material.textview.MaterialTextView
       android:id="@+id/kitNameText"
       android:layout_width="wrap_content"
@@ -22,6 +25,7 @@
       android:textAppearance="?attr/textAppearanceTitleMedium"
       android:textColor="?attr/colorOnSurface" />
 
+    <!-- Kit Location -->
     <com.google.android.material.textview.MaterialTextView
       android:id="@+id/kitLocationText"
       android:layout_width="wrap_content"

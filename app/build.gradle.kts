@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "com.example.emergencypreparednessmanager"
-    compileSdk = 36  // compileSdk { version = release(36) } → simplified, same thing
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.emergencypreparednessmanager"
@@ -15,6 +15,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
+        // Room schema export: app/schemas/...
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments["room.schemaLocation"] = "$projectDir/schemas"
@@ -34,7 +35,7 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11  // Or VERSION_17 if you want
+        sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
 }
@@ -45,14 +46,24 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.core.ktx)
+    implementation(libs.preference)
 
     // Room
     implementation(libs.room.runtime)
     annotationProcessor(libs.room.compiler)
+
+    // Local unit tests
+    testImplementation(libs.junit)
+
+    // Instrumented tests
+    androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.test.core)
+    androidTestImplementation(libs.espresso.core)
+
+    // Room testing (instrumented)
     androidTestImplementation(libs.room.testing)
 
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.ext.junit)
-    androidTestImplementation(libs.espresso.core)
-    implementation(libs.preference)
+    // Annotation processing for tests (safe to include)
+    testAnnotationProcessor(libs.room.compiler)
+    androidTestAnnotationProcessor(libs.room.compiler)
 }
