@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
   android:id="@+id/main"
@@ -8,6 +9,27 @@
   tools:context=".ui.activities.KitEditActivity">
 
   <!-- Toolbar -->
+  <com.google.android.material.appbar.MaterialToolbar
+    android:id="@+id/toolbar"
+    android:layout_width="0dp"
+    android:layout_height="85dp"
+    android:background="?attr/colorPrimaryContainer"
+    android:elevation="4dp"
+    android:gravity="center_vertical"
+    app:contentInsetEnd="16dp"
+    app:contentInsetStart="16dp"
+    app:contentInsetStartWithNavigation="0dp"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:navigationIcon="@drawable/baseline_arrow_back_24"
+    app:navigationIconTint="?attr/colorOnPrimaryContainer"
+    app:popupTheme="@style/MyToolbarPopupMenu"
+    app:title="@string/kit_details"
+    app:titleCentered="true"
+    app:titleTextColor="?attr/colorOnPrimaryContainer" />
+
+  <!-- Content -->
   <androidx.core.widget.NestedScrollView
     android:id="@+id/scrollView"
     android:layout_width="0dp"
@@ -27,45 +49,58 @@
       android:paddingHorizontal="16dp">
 
       <!-- Kit Name -->
-      <TextView
-        android:id="@+id/kitGlobalTimeHint"
+      <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/kitNameLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:text="@string/notification_time_global_hint"
-        android:textAppearance="?attr/textAppearanceBodySmall"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/kitFrequencyLayout" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+          android:id="@+id/kitNameText"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:hint="@string/kit_name_2" />
+      </com.google.android.material.textfield.TextInputLayout>
+
 
       <!-- Location -->
-      <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnSaveKit"
-        style="@style/Widget.Material3.Button"
+      <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/locationLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="@string/save_kit"
+        android:layout_marginTop="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/kitGlobalTimeHint" />
+        app:layout_constraintTop_toBottomOf="@+id/kitNameLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+          android:id="@+id/locationText"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:hint="@string/location_optional" />
+      </com.google.android.material.textfield.TextInputLayout>
 
       <!-- Notes -->
-      <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnDeleteKit"
-        style="@style/Widget.Material3.Button.OutlinedButton"
+      <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/notesLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="@string/delete_kit"
-        android:textColor="?attr/colorError"
-        app:iconTint="?attr/colorError"
+        android:layout_marginTop="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnSaveKit"
-        app:strokeColor="?attr/colorError" />
+        app:layout_constraintTop_toBottomOf="@id/locationLayout">
 
-      <!-- Kit Notifications Checkbox -->
+        <com.google.android.material.textfield.TextInputEditText
+          android:id="@+id/notesText"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:hint="@string/notes_optional"
+          android:minLines="2" />
+      </com.google.android.material.textfield.TextInputLayout>
+
+      <!-- Kit reminders toggle -->
       <com.google.android.material.checkbox.MaterialCheckBox
         android:id="@+id/kitNotifyCheckbox"
         android:layout_width="0dp"
@@ -76,7 +111,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/notesLayout" />
 
-      <!-- Frequency selector  -->
+      <!-- Reminder frequency (shown only when kit reminders enabled)  -->
       <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/kitFrequencyLayout"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
@@ -100,78 +135,46 @@
           android:inputType="none" />
       </com.google.android.material.textfield.TextInputLayout>
 
-      <!-- Global Time Hint -->
-      <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/locationLayout"
+      <!-- Global Notification Time Hint -->
+      <TextView
+        android:id="@+id/kitGlobalTimeHint"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="6dp"
+        android:text="@string/notification_time_global_hint"
+        android:textAppearance="?attr/textAppearanceBodySmall"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/kitNameLayout">
-
-        <com.google.android.material.textfield.TextInputEditText
-          android:id="@+id/locationText"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:hint="@string/location_optional" />
-      </com.google.android.material.textfield.TextInputLayout>
+        app:layout_constraintTop_toBottomOf="@id/kitFrequencyLayout" />
 
       <!-- Save Button -->
-      <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/notesLayout"
+      <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSaveKit"
+        style="@style/Widget.Material3.Button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="20dp"
+        android:text="@string/save_kit"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/locationLayout">
-
-        <com.google.android.material.textfield.TextInputEditText
-          android:id="@+id/notesText"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:hint="@string/notes_optional"
-          android:minLines="2" />
-      </com.google.android.material.textfield.TextInputLayout>
+        app:layout_constraintTop_toBottomOf="@+id/kitGlobalTimeHint" />
 
       <!-- Delete Button -->
-      <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/kitNameLayout"
+      <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnDeleteKit"
+        style="@style/Widget.Material3.Button.OutlinedButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/delete_kit"
+        android:textColor="?attr/colorError"
+        app:iconTint="?attr/colorError"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <com.google.android.material.textfield.TextInputEditText
-          android:id="@+id/kitNameText"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:hint="@string/kit_name_2" />
-      </com.google.android.material.textfield.TextInputLayout>
+        app:layout_constraintTop_toBottomOf="@+id/btnSaveKit"
+        app:strokeColor="?attr/colorError" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
   </androidx.core.widget.NestedScrollView>
-
-  <com.google.android.material.appbar.MaterialToolbar
-    android:id="@+id/toolbar"
-    android:layout_width="0dp"
-    android:layout_height="85dp"
-    android:background="?attr/colorPrimaryContainer"
-    android:elevation="4dp"
-    android:gravity="center_vertical"
-    app:contentInsetEnd="16dp"
-    app:contentInsetStart="16dp"
-    app:contentInsetStartWithNavigation="0dp"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent"
-    app:navigationIcon="@drawable/baseline_arrow_back_24"
-    app:navigationIconTint="?attr/colorOnPrimaryContainer"
-    app:popupTheme="@style/MyToolbarPopupMenu"
-    app:title="@string/kit_details"
-    app:titleCentered="true"
-    app:titleTextColor="?attr/colorOnPrimaryContainer" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

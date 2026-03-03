@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   android:id="@+id/searchHeaderRowHeader"
   android:layout_width="match_parent"
@@ -36,6 +37,7 @@
     android:orientation="vertical"
     app:layout_constraintGuide_percent="0.88" />
 
+  <!-- Header Labels (ITem | Kit | Category | Qty) -->
   <com.google.android.material.textview.MaterialTextView
     android:id="@+id/headerItem"
     android:layout_width="0dp"

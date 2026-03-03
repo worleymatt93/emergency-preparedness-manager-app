@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
   android:id="@+id/main"
@@ -8,6 +9,27 @@
   tools:context=".ui.activities.KitItemEditActivity">
 
   <!-- Toolbar -->
+  <com.google.android.material.appbar.MaterialToolbar
+    android:id="@+id/toolbar"
+    android:layout_width="0dp"
+    android:layout_height="85dp"
+    android:background="?attr/colorPrimaryContainer"
+    android:elevation="4dp"
+    android:gravity="center_vertical"
+    app:contentInsetEnd="16dp"
+    app:contentInsetStart="16dp"
+    app:contentInsetStartWithNavigation="0dp"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:navigationIcon="@drawable/baseline_arrow_back_24"
+    app:navigationIconTint="?attr/colorOnPrimaryContainer"
+    app:popupTheme="@style/MyToolbarPopupMenu"
+    app:title="@string/add_item"
+    app:titleCentered="true"
+    app:titleTextColor="?attr/colorOnPrimaryContainer" />
+
+  <!-- Scrollable content -->
   <androidx.core.widget.NestedScrollView
     android:id="@+id/scrollView"
     android:layout_width="0dp"
@@ -27,67 +49,6 @@
       android:paddingHorizontal="16dp">
 
       <!-- Item Name -->
-      <TextView
-        android:id="@+id/globalTimeHint"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:text="@string/notification_time_global_hint"
-        android:textAppearance="?attr/textAppearanceBodySmall"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/switchNotifyOnZero" />
-
-      <!-- Category -->
-      <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnSaveItem"
-        style="@style/Widget.Material3.Button"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="@string/save_item"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/notesLayout" />
-
-      <!-- Quantity -->
-      <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnDeleteItem"
-        style="@style/Widget.Material3.Button.OutlinedButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="@string/delete_item"
-        android:textColor="?attr/colorError"
-        app:iconTint="?attr/colorError"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnSaveItem"
-        app:strokeColor="?attr/colorError" />
-
-      <!-- Expiration Date -->
-      <com.google.android.material.materialswitch.MaterialSwitch
-        android:id="@+id/switchExpirationReminders"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/enable_expiration_reminder"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/expirationLayout" />
-
-      <!-- Notify on Expiration Switch -->
-      <com.google.android.material.materialswitch.MaterialSwitch
-        android:id="@+id/switchNotifyOnZero"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="@string/notify_when_zero"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/daysBeforeLayout" />
-
-      <!-- Days Before (shown when switchNotifyExpiration is checked) -->
       <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/itemNameLayout"
         android:layout_width="0dp"
@@ -103,7 +64,7 @@
           android:hint="@string/item_name" />
       </com.google.android.material.textfield.TextInputLayout>
 
-      <!-- Notify on Zero Stock Switch -->
+      <!-- Category -->
       <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/categoryLayout"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
@@ -123,7 +84,7 @@
           android:inputType="none" />
       </com.google.android.material.textfield.TextInputLayout>
 
-      <!-- Global Time Hint -->
+      <!-- Quantity -->
       <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/quantityLayout"
         android:layout_width="0dp"
@@ -141,7 +102,7 @@
           android:inputType="number" />
       </com.google.android.material.textfield.TextInputLayout>
 
-      <!-- Notes -->
+      <!-- Expiration Date -->
       <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/expirationLayout"
         android:layout_width="0dp"
@@ -164,7 +125,18 @@
           android:inputType="none" />
       </com.google.android.material.textfield.TextInputLayout>
 
-      <!-- Save Button -->
+      <!-- Expiration Reminders Toggle -->
+      <com.google.android.material.materialswitch.MaterialSwitch
+        android:id="@+id/switchExpirationReminders"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/enable_expiration_reminder"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/expirationLayout" />
+
+      <!-- Days Before Expiration (shown when expiration reminders enabled) -->
       <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/daysBeforeLayout"
         android:layout_width="0dp"
@@ -185,7 +157,30 @@
           android:maxLength="3" />
       </com.google.android.material.textfield.TextInputLayout>
 
-      <!-- Delete Button -->
+      <!-- Notify on Zero Stock Switch -->
+      <com.google.android.material.materialswitch.MaterialSwitch
+        android:id="@+id/switchNotifyOnZero"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/notify_when_zero"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/daysBeforeLayout" />
+
+      <!-- Global Notification Time Hint -->
+      <TextView
+        android:id="@+id/globalTimeHint"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="@string/notification_time_global_hint"
+        android:textAppearance="?attr/textAppearanceBodySmall"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/switchNotifyOnZero" />
+
+      <!-- Notes -->
       <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/notesLayout"
         android:layout_width="0dp"
@@ -204,29 +199,36 @@
           android:minLines="3" />
       </com.google.android.material.textfield.TextInputLayout>
 
+      <!-- Save Button -->
+      <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSaveItem"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/save_item"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/notesLayout" />
+
+
+      <!-- Delete Button -->
+      <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnDeleteItem"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/delete_item"
+        android:textColor="?attr/colorError"
+        app:iconTint="?attr/colorError"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnSaveItem"
+        app:strokeColor="?attr/colorError" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
   </androidx.core.widget.NestedScrollView>
-
-  <!-- Scrollable content -->
-  <com.google.android.material.appbar.MaterialToolbar
-    android:id="@+id/toolbar"
-    android:layout_width="0dp"
-    android:layout_height="85dp"
-    android:background="?attr/colorPrimaryContainer"
-    android:elevation="4dp"
-    android:gravity="center_vertical"
-    app:contentInsetEnd="16dp"
-    app:contentInsetStart="16dp"
-    app:contentInsetStartWithNavigation="0dp"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent"
-    app:navigationIcon="@drawable/baseline_arrow_back_24"
-    app:navigationIconTint="?attr/colorOnPrimaryContainer"
-    app:popupTheme="@style/MyToolbarPopupMenu"
-    app:title="@string/add_item"
-    app:titleCentered="true"
-    app:titleTextColor="?attr/colorOnPrimaryContainer" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
