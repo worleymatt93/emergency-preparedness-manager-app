@@ -1,22 +1,26 @@
 package com.example.emergencypreparednessmanager.ui.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import com.example.emergencypreparednessmanager.R;
 import com.google.android.material.button.MaterialButton;
 
 /**
  * Main launcher activity for the Emergency Preparedness Manager app.
  * <p>
- * Displays primary navigation buttons to access kits, search, reports, and settings. Uses
- * edge-to-edge display.
+ * Displays primary navigation buttons to access kits, search, reports, and settings.
+ * Requests notification permission on first launch (Android 13+).
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
   //region Constants
   private static final String TAG = "MainActivity";
+  private static final String PREFS_FIRST_LAUNCH = "main_prefs";
+  private static final String KEY_PROMPTED = "notifications_prompted";
   //endregion
 
   //region Lifecycle
@@ -24,11 +28,32 @@ public class MainActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    // Enable Edge-to-Edge display (content draws behind status/navigation bars)
     EdgeToEdge.enable(this);
     setContentView(R.layout.activity_main);
 
+    maybeRequestNotificationPermission();
     bindViews();
+  }
+  //endregion
+
+  //region Permission Prompt
+  /**
+   * Prompts for notification permission once on first app launch (Android 13+).
+   */
+  private void maybeRequestNotificationPermission() {
+    if (VERSION.SDK_INT < VERSION_CODES.TIRAMISU) return;
+
+    SharedPreferences prefs = getSharedPreferences(PREFS_FIRST_LAUNCH, MODE_PRIVATE);
+
+    boolean alreadyPrompted = prefs.getBoolean(KEY_PROMPTED, false);
+
+    if (!alreadyPrompted) {
+      ensureNotificationPermission();
+
+      prefs.edit()
+          .putBoolean(KEY_PROMPTED, true)
+          .apply();
+    }
   }
   //endregion
 

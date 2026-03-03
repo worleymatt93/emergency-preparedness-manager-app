@@ -8,7 +8,6 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
@@ -595,11 +594,6 @@ public class KitItemEditActivity extends BaseActivity {
 
   private String textOf(TextInputEditText editText) {
     return editText.getText() == null ? "" : editText.getText().toString().trim();
-  }
-
-  private void showToast(String message) {
-    Toast.makeText(this, message, message.length() >= 30 ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT)
-        .show();
   }
   //endregion
 }

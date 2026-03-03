@@ -22,10 +22,8 @@ import android.text.style.URLSpan;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -66,7 +64,7 @@ import java.util.Objects;
  *   <li>External resource links (Ready.gov, CDC, etc.)</li>
  * </ul>
  */
-public class ReportsActivity extends AppCompatActivity {
+public class ReportsActivity extends BaseActivity {
 
   private final SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
   private MaterialToolbar toolbar;
@@ -925,11 +923,6 @@ public class ReportsActivity extends AppCompatActivity {
       return getString(R.string.expiring_soon);
     }
     return getString(R.string.OK);
-  }
-
-  private void showToast(String message) {
-    Toast.makeText(this, message, message.length() >= 30
-        ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT).show();
   }
   //endregion
 

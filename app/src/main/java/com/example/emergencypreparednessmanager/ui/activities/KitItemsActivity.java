@@ -5,10 +5,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -42,7 +40,7 @@ import java.util.Objects;
  *   <li>Highlight new/updated item on return from edit</li>
  * </ul>
  */
-public class KitItemsActivity extends AppCompatActivity {
+public class KitItemsActivity extends BaseActivity {
 
   //region Constants
   public static final String EXTRA_KIT_ID = "kitID";
@@ -421,10 +419,5 @@ public class KitItemsActivity extends AppCompatActivity {
     Intent intent = new Intent(this, KitItemEditActivity.class);
     intent.putExtra(KitItemEditActivity.EXTRA_KIT_ID, kitID);
     startActivity(intent);
-  }
-
-  private void showToast(String message) {
-    Toast.makeText(this, message, message.length() >= 30
-        ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT).show();
   }
 }

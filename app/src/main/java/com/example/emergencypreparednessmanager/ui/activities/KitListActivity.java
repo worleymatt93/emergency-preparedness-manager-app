@@ -6,10 +6,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -44,7 +42,7 @@ import java.util.Set;
  *   <li>Undo via Snackbar on delete</li>
  * </ul>
  */
-public class KitListActivity extends AppCompatActivity {
+public class KitListActivity extends BaseActivity {
 
   //region Constants
   private static final String TAG = "KitListActivity";
@@ -362,11 +360,6 @@ public class KitListActivity extends AppCompatActivity {
     int requestCode = NotificationScheduler.generateRequestCode(
         String.valueOf(kit.getKitID()), "KIT");
     NotificationScheduler.cancel(this, AlertReceiver.class, requestCode);
-  }
-
-  private void showToast(String message) {
-    Toast.makeText(this, message, message.length() >= 30 ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT)
-        .show();
   }
   //endregion
 }
