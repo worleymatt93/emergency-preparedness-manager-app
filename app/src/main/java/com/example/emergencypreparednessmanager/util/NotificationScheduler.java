@@ -42,6 +42,22 @@ public class NotificationScheduler {
 
   private static final long ONE_TIME_WINDOW_MILLIS =
       15L * 60L * 1000L; // 15-minute batching windows
+
+  // Intent extra keys (use these everywhere: scheduler & receiver)
+  public static final String EXTRA_TYPE = "extra_type";
+  public static final String EXTRA_ITEM_ID = "extra_item_id";
+  public static final String EXTRA_KIT_ID = "extra_kit_id";
+  public static final String EXTRA_DAYS_BEFORE = "extra_days_before";
+
+  public static final String EXTRA_TITLE = "notificationTitle";
+  public static final String EXTRA_MESSAGE = "notificationMessage";
+  public static final String EXTRA_REQUEST_CODE = "requestCode";
+
+  // Known notification types
+  public static final String TYPE_ITEM_ZERO = "TYPE_ITEM_ZERO";
+  public static final String TYPE_ITEM_EXPIRED = "TYPE_ITEM_EXPIRED";
+  public static final String TYPE_ITEM_EXPIRES_SOON = "TYPE_ITEM_EXPIRES_SOON";
+  public static final String TYPE_KIT_REMINDER = "TYPE_KIT_REMINDER";
   //endregion
 
   //region Request Code Generation
@@ -77,7 +93,6 @@ public class NotificationScheduler {
   //endregion
 
   //region Global Notification Time (SharedPreferences)
-
   /**
    * Sets the global notification time (hour and minute) used when no specific time is provided.
    *
@@ -105,7 +120,6 @@ public class NotificationScheduler {
   //endregion
 
   //region Scheduling - Date String
-
   /**
    * Schedules a one-time inexact notification for a specific date at the given (or global) time. If
    * the calculated trigger time is in the past, bumps it to the next global time tomorrow.
@@ -118,23 +132,30 @@ public class NotificationScheduler {
    * @param requestCode unique code identifying this alarm
    * @param hour        optional hour (24h); uses global if null
    * @param minute      optional minute; uses global if null
+   * @param itemId      optional item id
+   * @param kitId       optional kit id
+   * @param daysBefore  optional days-before value (for "expires soon" alarms)
    */
-  public static void schedule(Context context,
+  public static void schedule(
+      Context context,
       Class<?> receiver,
+      String type,
       String title,
       String message,
       String dateString,
       int requestCode,
       @Nullable Integer hour,
-      @Nullable Integer minute) {
-
+      @Nullable Integer minute,
+      @Nullable String itemId,
+      @Nullable String kitId,
+      @Nullable Integer daysBefore
+  ) {
     if (!areNotificationsEnabled(context)) {
       log("Notifications disabled. Skipping schedule() for code=" + requestCode);
       return;
     }
 
-    log("Scheduling notification: code=" + requestCode + ", title=" + title +
-        "date=" + dateString + ", hour=" + hour + ",minute=" + minute);
+    log("Scheduling one-time: code=" + requestCode + ", type=" + type + ", date=" + dateString);
 
     int notifHour = (hour != null) ? hour : getGlobalHour(context);
     int notifMinute = (minute != null) ? minute : getGlobalMinute(context);
@@ -154,36 +175,55 @@ public class NotificationScheduler {
 
     long triggerAt = cal.getTimeInMillis();
 
-    // If trigger time already passed, trigger in 2 seconds
+    // If trigger time is already passed, bump to the next global notification time
     if (triggerAt <= System.currentTimeMillis()) {
-      triggerAt = System.currentTimeMillis() + 2000; // 2 seconds from now
+      triggerAt = nextGlobalTriggerMillis(context);
     }
 
-    scheduleAtMillis(context, receiver, title, message, triggerAt, requestCode);
+    scheduleAtMillis(
+        context,
+        receiver,
+        type,
+        title,
+        message,
+        triggerAt,
+        requestCode,
+        itemId,
+        kitId,
+        daysBefore
+    );
   }
   //endregion
 
   //region Scheduling - Milliseconds
-
   /**
    * Schedules a one-time inexact notification at the specified trigger time.
    *
    * @param context         application context
    * @param receiver        BroadcastReceiver class
+   * @param type            notification type (TYPE_*)
    * @param title           notification title
    * @param message         notification message
    * @param triggerAtMillis time in millis when the alarm should ideally fire
    * @param requestCode     unique alarm identifier
+   * @param itemId          optional item id
+   * @param kitId           optional kit id
+   * @param daysBefore      optional daysBefore
    */
-  public static void scheduleAtMillis(Context context,
+  public static void scheduleAtMillis(
+      Context context,
       Class<?> receiver,
+      String type,
       String title,
       String message,
       long triggerAtMillis,
-      int requestCode) {
-
+      int requestCode,
+      @Nullable String itemId,
+      @Nullable String kitId,
+      @Nullable Integer daysBefore
+  ) {
     if (!areNotificationsEnabled(context)) {
-      log("Notifications disabled. Skipping schedule() for code=" + requestCode);
+      log("Notifications disabled. Skipping scheduleAtMillis() for code=" + requestCode);
       return;
     }
 
@@ -195,7 +235,17 @@ public class NotificationScheduler {
       return;
     }
 
-    PendingIntent pi = buildPendingIntent(context, receiver, title, message, requestCode);
+    PendingIntent pi = buildPendingIntent(
+        context,
+        receiver,
+        type,
+        title,
+        message,
+        requestCode,
+        itemId,
+        kitId,
+        daysBefore
+    );
 
     am.setWindow(
         AlarmManager.RTC_WAKEUP,
@@ -209,26 +259,32 @@ public class NotificationScheduler {
   //endregion
 
   //region Scheduling - Repeating
-
   /**
    * Schedules an inexact repeating notification every N days.
    *
    * @param context            application context
    * @param receiver           BroadcastReceiver class
+   * @param type               notification type (TYPE_*)
    * @param title              notification title
    * @param message            notification message
    * @param firstTriggerMillis initial trigger time
    * @param intervalDays       repeat interval in days (> 0)
    * @param requestCode        unique alarm identifier
+   * @param itemId             optional item id
+   * @param kitId              optional kit id
    */
-  public static void scheduleRepeatingDays(Context context,
+  public static void scheduleRepeatingDays(
+      Context context,
       Class<?> receiver,
+      String type,
       String title,
       String message,
       long firstTriggerMillis,
       int intervalDays,
-      int requestCode) {
-
+      int requestCode,
+      @Nullable String itemId,
+      @Nullable String kitId
+  ) {
     if (!areNotificationsEnabled(context)) {
       log("Notifications disabled. Skipping scheduleRepeatingDays() for code=" + requestCode);
       return;
@@ -241,10 +297,19 @@ public class NotificationScheduler {
 
     AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
     if (am == null) {
+      log("AlarmManager unavailable");
       return;
     }
 
-    PendingIntent pi = buildPendingIntent(context, receiver, title, message, requestCode);
+    PendingIntent pi = buildPendingIntent(
+        context,
+        receiver,
+        type, title,
+        message,
+        requestCode,
+        itemId,
+        kitId,
+        null);
 
     long intervalMillis = intervalDays * 24L * 60L * 60L * 1000L;
 
@@ -268,14 +333,17 @@ public class NotificationScheduler {
    * @param message     notification message
    * @param frequency   "MONTHLY", "QUARTERLY", "YEARLY" (case-insensitive)
    * @param requestCode unique alarm identifier
+   * @param kitId       kit id
    */
-  public static void scheduleKitFrequency(Context context,
+  public static void scheduleKitFrequency(
+      Context context,
       Class<?> receiver,
       String title,
       String message,
       String frequency,
-      int requestCode) {
-
+      int requestCode,
+      @Nullable String kitId
+  ) {
     if (!areNotificationsEnabled(context)) {
       log("Notifications disabled. Skipping scheduleKitFrequency() for code=" + requestCode);
       return;
@@ -297,13 +365,22 @@ public class NotificationScheduler {
     }
 
     long firstTrigger = nextGlobalTriggerMillis(context);
-    scheduleRepeatingDays(context, receiver, title, message, firstTrigger, intervalDays,
-        requestCode);
+
+    scheduleRepeatingDays(
+        context,
+        receiver,
+        TYPE_KIT_REMINDER,
+        title,
+        message,
+        firstTrigger,
+        intervalDays,
+        requestCode,
+        null,
+        kitId);
   }
   //endregion
 
   //region Helpers - Date & Time Utilities
-
   /**
    * Subtracts days from a date string and returns the new date in "MM/dd/yyyy".
    *
@@ -352,7 +429,6 @@ public class NotificationScheduler {
   //endregion
 
   //region Cancel
-
   /**
    * Cancels a previously scheduled notification. Matches the original PendingIntent exactly (same
    * receiver & request code).
@@ -369,16 +445,23 @@ public class NotificationScheduler {
       return;
     }
 
+    Intent intent = new Intent(context, receiver);
+    intent.setAction(buildAction(requestCode));
+
     PendingIntent pi = PendingIntent.getBroadcast(
         context,
         requestCode,
-        new Intent(context, receiver),
+        intent,
         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
     );
 
-    am.cancel(pi);
-    pi.cancel();
-    log("Cancelled alarm code=" + requestCode);
+    if (pi != null) {
+      am.cancel(pi);
+      pi.cancel();
+      log("Cancelled alarm code=" + requestCode);
+    } else {
+      log("No existing alarm found to cancel for code=" + requestCode);
+    }
   }
   //endregion
 
@@ -394,20 +477,46 @@ public class NotificationScheduler {
     try {
       return new SimpleDateFormat(DATE_PATTERN, Locale.US).parse(dateString);
     } catch (Exception e) {
-      log("Date parse failed: " + dateString + " → " + e.getMessage());
+      log("Date parse failed: " + dateString + " -> " + e.getMessage());
       return null;
     }
   }
 
-  private static PendingIntent buildPendingIntent(Context context,
+  /**
+   * Creates a stable action string so each PendingIntent is unambiguous and cannot be "reused"
+   * accidentally for a different alarm.
+   */
+  private static String buildAction(int requestCode) {
+    return "com.example.emergencypreparednessmanager.ACTION_NOTIFY_" + requestCode;
+  }
+
+  private static PendingIntent buildPendingIntent(
+      Context context,
       Class<?> receiver,
+      String type,
       String title,
       String message,
-      int requestCode) {
+      int requestCode,
+      @Nullable String itemId,
+      @Nullable String kitId,
+      @Nullable Integer daysBefore
+  ) {
+
     Intent intent = new Intent(context, receiver);
-    intent.putExtra("notificationTitle", title);
-    intent.putExtra("notificationMessage", message);
-    intent.putExtra("requestCode", requestCode);
+
+    // Make the PendingIntent identity unique and stable
+    intent.setAction(buildAction(requestCode));
+
+    // Required extras
+    intent.putExtra(EXTRA_TITLE, title);
+    intent.putExtra(EXTRA_MESSAGE, message);
+    intent.putExtra(EXTRA_REQUEST_CODE, requestCode);
+    intent.putExtra(EXTRA_TYPE, type);
+
+    // Optional extras
+    if (itemId != null) intent.putExtra(EXTRA_ITEM_ID, itemId);
+    if (kitId != null) intent.putExtra(EXTRA_KIT_ID, kitId);
+    if (daysBefore != null) intent.putExtra(EXTRA_DAYS_BEFORE, daysBefore);
 
     return PendingIntent.getBroadcast(
         context,

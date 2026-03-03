@@ -126,10 +126,14 @@
   <string name="kit_notification_message">Time to review your kit: %s</string>
 
   <string name="item_expiration_title">Item Expiration Reminder: %s</string>
-  <string name="item_expiration_message">Item %s expires on %s</string>
+  <string name="item_expired_message">Item %s expires on %s. Check and replace if needed.</string>
+
 
   <string name="item_zero_title">Out of Stock: %s</string>
-  <string name="item_zero_message">Item %s has reached zero quantity</string>
+  <string name="item_zero_message">Item %s is at 0. Add it to your shopping list.</string>
+  <string name="kit_notification_message">
+    Time to review %1$s. Confirm quantities, expiration dates, and batteries
+  </string>
 
   <!-- ===================================================== -->
   <!-- 7. Status, Prefixes & Labels -->
@@ -368,6 +372,10 @@
   <string name="kit_updated">Kit updated</string>
   <string name="item_added">Item added</string>
   <string name="item_updated">Item updated</string>
+  <string name="notifications_enabled">Notifications enabled</string>
+  <string name="notifications_denied">Notifications denied</string>
+  <string name="notification_channel_name">Alerts</string>
+  <string name="notification_channel_description">Reminders and expiration notifications</string>
 
   <!-- ===================================================== -->
   <!-- 15. Plurals -->
@@ -406,6 +414,11 @@
   <plurals name="recommendations_water">
     <item quantity="one">• Water: %d gallon</item>
     <item quantity="other">• Water: %d gallons</item>
+  </plurals>
+
+  <plurals name="item_expires_soon_message">
+    <item quantity="one">%1$s expires in %2$d day on %3$s. Replace or use it soon.</item>
+    <item quantity="other">%1$s expires in %2$d days on %3$s. Replace or use it soon.</item>
   </plurals>
 
 </resources>

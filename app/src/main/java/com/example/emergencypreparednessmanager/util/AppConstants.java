@@ -31,6 +31,7 @@ public final class AppConstants {
   //endregion
   //region SharedPreferences
   public static final String PREFS_NAME = "epm_prefs";
+  public static final String NOTIFICATION_CHANNEL_ALERTS = "epm_alerts";
   //endregion
   public static final String KEY_HOUSEHOLD_SIZE = "household_size";
   //region Export / Share

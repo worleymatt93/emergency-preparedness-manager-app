@@ -36,9 +36,15 @@ public class AlertReceiver extends BroadcastReceiver {
       return;
     }
 
-    String title = intent.getStringExtra("notificationTitle");
-    String message = intent.getStringExtra("notificationMessage");
-    int requestCode = intent.getIntExtra("requestCode", -1);
+    String title = intent.getStringExtra(NotificationScheduler.EXTRA_TITLE);
+    String message = intent.getStringExtra(NotificationScheduler.EXTRA_MESSAGE);
+    int requestCode = intent.getIntExtra(NotificationScheduler.EXTRA_REQUEST_CODE, -1);
+
+    // Optional context (for logging/debugging or routing later
+    String type = intent.getStringExtra(NotificationScheduler.EXTRA_TYPE);
+    String itemId = intent.getStringExtra(NotificationScheduler.EXTRA_ITEM_ID);
+    String kitId = intent.getStringExtra(NotificationScheduler.EXTRA_KIT_ID);
+    int daysBefore = intent.getIntExtra(NotificationScheduler.EXTRA_DAYS_BEFORE, -1);
 
     if (title == null || message == null) {
       Log.w(TAG, "Missing title or message in intent - aborting");
@@ -50,6 +56,12 @@ public class AlertReceiver extends BroadcastReceiver {
       Log.d(TAG, "Notifications disabled in settings, skipping display");
       return;
     }
+
+    Log.d(TAG, "Alarm received: type= " + type
+        + ", requestCode= " + requestCode
+        + ", itemId= " + itemId
+        + ", kitId= " + kitId
+        + ", daysBefore= " + daysBefore);
 
     // Open app on tap
     Intent openIntent = new Intent(context, MainActivity.class);
