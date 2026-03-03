@@ -4,6 +4,7 @@
 
   <!-- Permissions -->
   <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
   <application
     android:allowBackup="true"
@@ -49,10 +50,21 @@
         android:resource="@xml/file_paths" />
     </provider>
 
-    <!-- Broadcast Receiver for scheduled notifications -->
+    <!-- Receivers -->
     <receiver
-      android:exported="false"
-      android:name=".ui.receivers.AlertReceiver" />
+      android:name=".ui.receivers.AlertReceiver"
+      android:exported="false" />
+
+    <receiver
+      android:name=".ui.receivers.BootAndUpdateReceiver"
+      android:exported="false">
+      <intent-filter>
+        <action android:name="android.intent.action.BOOT_COMPLETED" />
+        <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+        <action android:name="android.intent.action.TIME_CHANGED" />
+        <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+      </intent-filter>
+    </receiver>
 
   </application>
 

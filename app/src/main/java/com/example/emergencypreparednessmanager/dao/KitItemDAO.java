@@ -91,6 +91,8 @@ public interface KitItemDAO {
   //endregion
 
   //region Search Queries
+  @Query("SELECT * FROM KitItems")
+  List<KitItem> getAllItems();
 
   /**
    * Search items within a specific kit.

@@ -1,14 +1,20 @@
 package com.example.emergencypreparednessmanager.database;
 
 import android.app.Application;
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
+import com.example.emergencypreparednessmanager.R;
 import com.example.emergencypreparednessmanager.dao.CategoryDAO;
 import com.example.emergencypreparednessmanager.dao.KitDAO;
 import com.example.emergencypreparednessmanager.dao.KitItemDAO;
 import com.example.emergencypreparednessmanager.entities.Category;
 import com.example.emergencypreparednessmanager.entities.Kit;
 import com.example.emergencypreparednessmanager.entities.KitItem;
+import com.example.emergencypreparednessmanager.ui.receivers.AlertReceiver;
+import com.example.emergencypreparednessmanager.util.AppConstants;
+import com.example.emergencypreparednessmanager.util.NotificationScheduler;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,7 +44,6 @@ public class Repository {
   //endregion
 
   //region Constructor
-
   /**
    * Initializes the repository with DAO references from the Room database.
    *
@@ -53,7 +58,6 @@ public class Repository {
   //endregion
 
   //region Kits
-
   /**
    * Retrieves all kits asynchronously.
    *
@@ -137,7 +141,6 @@ public class Repository {
   //endregion
 
   //region Kit Items
-
   /**
    * Retrieves all items in a specific kit.
    *
@@ -147,6 +150,18 @@ public class Repository {
   public void getItemsForKit(int kitID, Consumer<List<KitItem>> callback) {
     databaseExecutor.execute(() -> {
       List<KitItem> items = kitItemDAO.getItemsForKit(kitID);
+      mainHandler.post(() -> callback.accept(items));
+    });
+  }
+
+  /**
+   * Retrieves all items across all kits.
+   *
+   * @param callback receives the list on the main thread
+   */
+  public void getAllItems(Consumer<List<KitItem>> callback) {
+    databaseExecutor.execute(() -> {
+      List<KitItem> items = kitItemDAO.getAllItems();
       mainHandler.post(() -> callback.accept(items));
     });
   }
@@ -252,8 +267,167 @@ public class Repository {
   }
   //endregion
 
-  //region Categories
+  //region Notifications (Reschedule after reboot / app update)
+  /**
+   * Reschedules all kit and item notifications from database state.
+   * <p>
+   * Intended for BOOT_COMPLETED / MY_PACKAGE_REPLACED receivers.
+   * Cancels first to prevent duplicates, then schedules according to the same rules used in the UI.
+   *
+   * @param context any context; applicationContext will be used internally
+   */
+  public void rescheduleAllNotifications(Context context) {
+    final Context appContext = context.getApplicationContext();
 
+    databaseExecutor.execute(() -> {
+      // Respect global setting
+      if (!NotificationScheduler.areNotificationsEnabled(appContext)) {
+        return;
+      }
+
+      List<Kit> kits = kitDAO.getAllKits();
+      List<KitItem> items = kitItemDAO.getAllItems();
+
+      // 1) Kit reminders
+      if (kits != null) {
+        for (Kit kit : kits) {
+          if (kit == null || !kit.isNotificationsEnabled()) continue;
+
+          String freq = kit.getNotificationFrequency();
+          if (freq == null || freq.trim().isEmpty()) continue;
+
+          int requestCode = NotificationScheduler.generateRequestCode(
+              String.valueOf(kit.getKitID()),
+              NotificationScheduler.TYPE_KIT_REMINDER
+          );
+
+          NotificationScheduler.cancel(appContext, AlertReceiver.class, requestCode);
+
+          String title = appContext.getString(R.string.kit_notification_title, kit.getKitName());
+          String message = appContext.getString(R.string.kit_notification_message, kit.getKitName());
+
+          NotificationScheduler.scheduleKitFrequency(
+              appContext,
+              AlertReceiver.class,
+              title,
+              message,
+              freq,
+              requestCode,
+              String.valueOf(kit.getKitID())
+          );
+        }
+      }
+
+      // 2) Item alarms (expired, expires soon, zero)
+      if (items != null) {
+        for (KitItem item : items) {
+          if (item == null) continue;
+
+          String itemId = String.valueOf(item.getItemID());
+          String kitId = String.valueOf(item.getKitID());
+
+          // Expiration alarms
+          int expiredCode = NotificationScheduler.generateRequestCode(
+              itemId, NotificationScheduler.TYPE_ITEM_EXPIRED
+          );
+          int soonCode = NotificationScheduler.generateRequestCode(
+              itemId, NotificationScheduler.TYPE_ITEM_EXPIRES_SOON
+          );
+
+          NotificationScheduler.cancel(appContext, AlertReceiver.class, expiredCode);
+          NotificationScheduler.cancel(appContext, AlertReceiver.class, soonCode);
+
+          if (item.isExpirationRemindersEnabled()) {
+            String expDate = item.getExpirationDate();
+            if (!TextUtils.isEmpty(expDate)) {
+              String title = appContext.getString(R.string.item_expiration_title, item.getItemName());
+
+              // A) EXPIRED (day-of)
+              String expiredMsg = appContext.getString(
+                  R.string.item_expired_message,
+                  item.getItemName(),
+                  expDate
+              );
+
+              NotificationScheduler.schedule(
+                  appContext,
+                  AlertReceiver.class,
+                  NotificationScheduler.TYPE_ITEM_EXPIRED,
+                  title,
+                  expiredMsg,
+                  expDate,
+                  expiredCode,
+                  null,
+                  null,
+                  itemId,
+                  kitId,
+                  null
+              );
+
+              // B) EXPIRES SOON (daysBefore)
+              int daysBefore = Math.max(0, item.getNotifyDaysBefore());
+              if (daysBefore > 0) {
+                String fireDate = NotificationScheduler.subtractDays(expDate, daysBefore);
+                if (!TextUtils.isEmpty(fireDate)) {
+                  String soonMsg = appContext.getResources().getQuantityString(
+                      R.plurals.item_expires_soon_message,
+                      daysBefore,
+                      item.getItemName(),
+                      daysBefore,
+                      expDate
+                  );
+
+                  NotificationScheduler.schedule(
+                      appContext,
+                      AlertReceiver.class,
+                      NotificationScheduler.TYPE_ITEM_EXPIRES_SOON,
+                      title,
+                      soonMsg,
+                      fireDate,
+                      soonCode,
+                      null,
+                      null,
+                      itemId,
+                      kitId,
+                      daysBefore
+                  );
+                }
+              }
+            }
+          }
+
+          // Zero alarm
+          int zeroCode = NotificationScheduler.generateRequestCode(
+              itemId, NotificationScheduler.TYPE_ITEM_ZERO
+          );
+          NotificationScheduler.cancel(appContext, AlertReceiver.class, zeroCode);
+
+          if (item.isNotifyOnZero() && item.getQuantity() <= 0) {
+            String title = appContext.getString(R.string.item_zero_title, item.getItemName());
+            String message = appContext.getString(R.string.item_zero_message, item.getItemName());
+
+            long trigger = System.currentTimeMillis() + AppConstants.ZERO_QUANTITY_ALERT_DELAY_MS;
+
+            NotificationScheduler.scheduleAtMillis(
+                appContext,
+                AlertReceiver.class,
+                NotificationScheduler.TYPE_ITEM_ZERO,
+                title,
+                message,
+                trigger,
+                zeroCode,
+                itemId,
+                kitId,
+                null
+            );
+          }
+        }
+      }
+    });
+  }
+  //endregion
+
+  //region Categories
   /**
    * Retrieves all categories asynchronously.
    *
