@@ -204,7 +204,7 @@ public class KitEditActivity extends BaseActivity {
       kitFrequencyLayout.setVisibility(isChecked ? View.VISIBLE : View.GONE);
       kitFrequencyLayout.setError(null);
 
-      // DForce re-selection when re-enabled
+      // Force re-selection when re-enabled
       if (isChecked) {
         selectedFrequency = null;
         frequencyDropdown.setText("", false);
@@ -220,17 +220,13 @@ public class KitEditActivity extends BaseActivity {
   private TextWatcher clearErrorWatcher(TextInputLayout layout) {
     return new TextWatcher() {
       @Override
-      public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-      }
-
+      public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
       @Override
       public void onTextChanged(CharSequence s, int start, int before, int count) {
         layout.setError(null);
       }
-
       @Override
-      public void afterTextChanged(Editable s) {
-      }
+      public void afterTextChanged(Editable s) {}
     };
   }
 
@@ -370,7 +366,9 @@ public class KitEditActivity extends BaseActivity {
 
     // Cancel notifications first
     int requestCode = NotificationScheduler.generateRequestCode(
-        String.valueOf(kitID), "KIT");
+        String.valueOf(kitID),
+        NotificationScheduler.TYPE_KIT_REMINDER
+    );
     NotificationScheduler.cancel(this, AlertReceiver.class, requestCode);
 
     repository.deleteKit(kitToDelete, () -> {
@@ -383,22 +381,19 @@ public class KitEditActivity extends BaseActivity {
     });
   }
 
-
   private void applyKitNotificationSchedule(Kit kit) {
     int requestCode = NotificationScheduler.generateRequestCode(
-        String.valueOf(kit.getKitID()), "KIT");
+        String.valueOf(kit.getKitID()),
+        NotificationScheduler.TYPE_KIT_REMINDER
+    );
 
     // Always cancel first to avoid duplicates on update/toggle
     NotificationScheduler.cancel(this, AlertReceiver.class, requestCode);
 
-    if (!kit.isNotificationsEnabled()) {
-      return;
-    }
+    if (!kit.isNotificationsEnabled()) return;
 
     String freq = kit.getNotificationFrequency();
-    if (freq == null || freq.trim().isEmpty()) {
-      return;
-    }
+    if (freq == null || freq.trim().isEmpty()) return;
 
     String title = getString(R.string.kit_notification_title, kit.getKitName());
     String message = getString(R.string.kit_notification_message, kit.getKitName());
@@ -409,7 +404,8 @@ public class KitEditActivity extends BaseActivity {
         title,
         message,
         freq,
-        requestCode
+        requestCode,
+        String.valueOf(kit.getKitID())
     );
   }
   //endregion

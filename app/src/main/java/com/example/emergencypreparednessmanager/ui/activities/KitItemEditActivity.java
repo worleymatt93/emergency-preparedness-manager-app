@@ -259,17 +259,13 @@ public class KitItemEditActivity extends BaseActivity {
   private TextWatcher clearErrorWatcher(TextInputLayout layout) {
     return new TextWatcher() {
       @Override
-      public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-      }
-
+      public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
       @Override
       public void onTextChanged(CharSequence s, int start, int before, int count) {
         layout.setError(null);
       }
-
       @Override
-      public void afterTextChanged(Editable s) {
-      }
+      public void afterTextChanged(Editable s) {}
     };
   }
 
@@ -353,14 +349,10 @@ public class KitItemEditActivity extends BaseActivity {
       public void onTextChanged(CharSequence s, int start, int before, int count) {
         layout.setError(null);
       }
-
       @Override
-      public void afterTextChanged(Editable s) {
-      }
-
+      public void afterTextChanged(Editable s) {}
       @Override
-      public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-      }
+      public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
     });
 
     new AlertDialog.Builder(this)
@@ -514,34 +506,79 @@ public class KitItemEditActivity extends BaseActivity {
   }
 
   private void applyItemNotificationSchedule(KitItem item) {
-    int expCode = NotificationScheduler.generateRequestCode(
-        String.valueOf(item.getItemID()), "ITEM_EXP");
-    NotificationScheduler.cancel(this, AlertReceiver.class, expCode);
+    String itemId = String.valueOf(item.getItemID());
+    String kitId = String.valueOf(item.getKitID());
+
+    // Expiration-related alarms
+    int expiredCode = NotificationScheduler.generateRequestCode(
+        itemId, NotificationScheduler.TYPE_ITEM_EXPIRED
+    );
+    int soonCode = NotificationScheduler.generateRequestCode(
+        itemId, NotificationScheduler.TYPE_ITEM_EXPIRES_SOON
+    );
+
+    NotificationScheduler.cancel(this, AlertReceiver.class, expiredCode);
+    NotificationScheduler.cancel(this, AlertReceiver.class, soonCode);
 
     if (item.isExpirationRemindersEnabled()) {
       String expDate = item.getExpirationDate();
-      String fireDate = NotificationScheduler.subtractDays(expDate,
-          Math.max(0, item.getNotifyDaysBefore()));
-
-      if (!TextUtils.isEmpty(fireDate)) {
+      if (!TextUtils.isEmpty(expDate)) {
         String title = getString(R.string.item_expiration_title, item.getItemName());
-        String message = getString(R.string.item_expiration_message, item.getItemName(), expDate);
+
+        // A) EXPIRED (fires on the expiration date)
+        String expiredMsg = getString(R.string.item_expired_message, item.getItemName(), expDate);
 
         NotificationScheduler.schedule(
             this,
             AlertReceiver.class,
+            NotificationScheduler.TYPE_ITEM_EXPIRED,
             title,
-            message,
-            fireDate,
-            expCode,
+            expiredMsg,
+            expDate,
+            expiredCode,
             null,
+            null,
+            itemId,
+            kitId,
             null
         );
+
+        // B) EXPIRES SOON (fires daysBefore before expiration, only if daysBefore > 0)
+        int daysBefore = Math.max(0, item.getNotifyDaysBefore());
+        if (daysBefore > 0) {
+          String fireDate = NotificationScheduler.subtractDays(expDate, daysBefore);
+          if (!TextUtils.isEmpty(fireDate)) {
+            String soonMsg = getResources().getQuantityString(
+                R.plurals.item_expires_soon_message,
+                daysBefore,
+                item.getItemName(),
+                daysBefore,
+                expDate
+            );
+
+            NotificationScheduler.schedule(
+                this,
+                AlertReceiver.class,
+                NotificationScheduler.TYPE_ITEM_EXPIRES_SOON,
+                title,
+                soonMsg,
+                fireDate,
+                soonCode,
+                null,
+                null,
+                itemId,
+                kitId,
+                daysBefore
+            );
+          }
+        }
       }
     }
 
-    int zeroCode = NotificationScheduler.generateRequestCode(String.valueOf(
-        item.getItemID()), "ITEM_ZERO");
+    // Zero-quantity alarm
+    int zeroCode = NotificationScheduler.generateRequestCode(
+        itemId, NotificationScheduler.TYPE_ITEM_ZERO
+    );
     NotificationScheduler.cancel(this, AlertReceiver.class, zeroCode);
 
     if (item.isNotifyOnZero() && item.getQuantity() <= 0) {
@@ -549,8 +586,19 @@ public class KitItemEditActivity extends BaseActivity {
       String message = getString(R.string.item_zero_message, item.getItemName());
 
       long trigger = System.currentTimeMillis() + AppConstants.ZERO_QUANTITY_ALERT_DELAY_MS;
-      NotificationScheduler.scheduleAtMillis(this, AlertReceiver.class, title, message, trigger,
-          zeroCode);
+
+      NotificationScheduler.scheduleAtMillis(
+          this,
+          AlertReceiver.class,
+          NotificationScheduler.TYPE_ITEM_ZERO,
+          title,
+          message,
+          trigger,
+          zeroCode,
+          itemId,
+          kitId,
+          null
+      );
     }
   }
   //endregion
@@ -562,6 +610,25 @@ public class KitItemEditActivity extends BaseActivity {
 
   private void performDeleteItem() {
     btnDeleteItem.setEnabled(false);
+
+    // Cancel alarms for this item before deleting
+    if (itemID != -1) {
+      String itemId = String.valueOf(itemID);
+
+      int expiredCode = NotificationScheduler.generateRequestCode(
+          itemId, NotificationScheduler.TYPE_ITEM_EXPIRED
+      );
+      int soonCode = NotificationScheduler.generateRequestCode(
+          itemId, NotificationScheduler.TYPE_ITEM_EXPIRES_SOON
+      );
+      int zeroCode = NotificationScheduler.generateRequestCode(
+          itemId, NotificationScheduler.TYPE_ITEM_ZERO
+      );
+
+      NotificationScheduler.cancel(this, AlertReceiver.class, expiredCode);
+      NotificationScheduler.cancel(this, AlertReceiver.class, soonCode);
+      NotificationScheduler.cancel(this, AlertReceiver.class, zeroCode);
+    }
 
     KitItem itemToDelete = new KitItem();
     itemToDelete.setItemID(itemID);

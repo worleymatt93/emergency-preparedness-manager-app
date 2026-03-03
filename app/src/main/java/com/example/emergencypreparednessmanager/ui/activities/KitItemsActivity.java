@@ -18,6 +18,7 @@ import com.example.emergencypreparednessmanager.database.Repository;
 import com.example.emergencypreparednessmanager.entities.KitItem;
 import com.example.emergencypreparednessmanager.ui.adapters.KitItemAdapter;
 import com.example.emergencypreparednessmanager.ui.receivers.AlertReceiver;
+import com.example.emergencypreparednessmanager.util.AppConstants;
 import com.example.emergencypreparednessmanager.util.NotificationScheduler;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -172,7 +173,11 @@ public class KitItemsActivity extends BaseActivity {
     adapter = new KitItemAdapter(this, (itemId, delta) ->
         repository.adjustItemQuantity(itemId, delta, updatedItem -> {
           if (updatedItem != null) {
+            // Update UI
             adapter.replaceItem(updatedItem);
+
+            // Keep the zero-quantity alarm in sync with +/- changes
+            updateZeroAlarmForItem(updatedItem);
           } else {
             loadItems();
           }
@@ -313,13 +318,55 @@ public class KitItemsActivity extends BaseActivity {
   }
 
   private void cancelItemNotifications(KitItem item) {
-    int expCode = NotificationScheduler.generateRequestCode(String.valueOf(item.getItemID()),
-        "ITEM_EXP");
-    NotificationScheduler.cancel(this, AlertReceiver.class, expCode);
+    String itemId = String.valueOf(item.getItemID());
 
-    int zeroCode = NotificationScheduler.generateRequestCode(String.valueOf(item.getItemID()),
-        "ITEM_ZERO");
+    int expiredCode = NotificationScheduler.generateRequestCode(
+        itemId, NotificationScheduler.TYPE_ITEM_EXPIRED
+    );
+    int soonCode = NotificationScheduler.generateRequestCode(
+        itemId, NotificationScheduler.TYPE_ITEM_EXPIRES_SOON
+    );
+    int zeroCode = NotificationScheduler.generateRequestCode(
+        itemId, NotificationScheduler.TYPE_ITEM_ZERO
+    );
+
+    NotificationScheduler.cancel(this, AlertReceiver.class, expiredCode);
+    NotificationScheduler.cancel(this, AlertReceiver.class, soonCode);
     NotificationScheduler.cancel(this, AlertReceiver.class, zeroCode);
+  }
+  //endregion
+
+  //region Zero alarm sync (+/- buttons)
+  private void updateZeroAlarmForItem(@NonNull KitItem item) {
+    String itemId = String.valueOf(item.getItemID());
+    String kitId = String.valueOf(item.getKitID());
+
+    int zeroCode = NotificationScheduler.generateRequestCode(
+        itemId, NotificationScheduler.TYPE_ITEM_ZERO
+    );
+
+    // Always cancel first to avoid duplicates
+    NotificationScheduler.cancel(this, AlertReceiver.class, zeroCode);
+
+    if (item.isNotifyOnZero() && item.getQuantity() <= 0) {
+      String title = getString(R.string.item_zero_title, item.getItemName());
+      String message = getString(R.string.item_zero_message, item.getItemName());
+
+      long trigger = System.currentTimeMillis() + AppConstants.ZERO_QUANTITY_ALERT_DELAY_MS;
+
+      NotificationScheduler.scheduleAtMillis(
+          this,
+          AlertReceiver.class,
+          NotificationScheduler.TYPE_ITEM_ZERO,
+          title,
+          message,
+          trigger,
+          zeroCode,
+          itemId,
+          kitId,
+          null
+      );
+    }
   }
   //endregion
 
@@ -330,14 +377,10 @@ public class KitItemsActivity extends BaseActivity {
 
     MenuItem searchItem = menu.findItem(R.id.action_search);
 
-    if (searchItem == null) {
-      return true;
-    }
+    if (searchItem == null) return true;
 
     SearchView searchView = (SearchView) searchItem.getActionView();
-    if (searchView == null) {
-      return true;
-    }
+    if (searchView == null) return true;
 
     searchView.setQueryHint(getString(R.string.search_items));
 
