@@ -4,7 +4,7 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.example.emergencypreparednessmanager",
+  "applicationId": "com.emergencypreparedness.manager",
   "variantName": "release",
   "elements": [
     {
