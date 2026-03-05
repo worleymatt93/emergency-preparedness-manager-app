@@ -50,6 +50,9 @@ dependencies {
 
     // Room
     implementation(libs.room.runtime)
+    implementation(libs.test.core)
+    implementation(libs.firebase.firestore)
+    implementation(libs.ext.junit)
     annotationProcessor(libs.room.compiler)
 
     // Local unit tests
