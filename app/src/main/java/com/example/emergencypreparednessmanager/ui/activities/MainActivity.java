@@ -1,5 +1,7 @@
 package com.example.emergencypreparednessmanager.ui.activities;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build.VERSION;
@@ -7,8 +9,8 @@ import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import androidx.activity.EdgeToEdge;
 import com.example.emergencypreparednessmanager.R;
+import com.example.emergencypreparednessmanager.util.AppConstants;
 import com.google.android.material.button.MaterialButton;
-
 /**
  * Main launcher activity for the Emergency Preparedness Manager app.
  * <p>
@@ -18,7 +20,6 @@ import com.google.android.material.button.MaterialButton;
 public class MainActivity extends BaseActivity {
 
   //region Constants
-  private static final String TAG = "MainActivity";
   private static final String PREFS_FIRST_LAUNCH = "main_prefs";
   private static final String KEY_PROMPTED = "notifications_prompted";
   //endregion
@@ -31,7 +32,8 @@ public class MainActivity extends BaseActivity {
     EdgeToEdge.enable(this);
     setContentView(R.layout.activity_main);
 
-    maybeRequestNotificationPermission();
+    requestNotificationPermission();
+    ensureNotificationChannel();
     bindViews();
   }
   //endregion
@@ -40,7 +42,7 @@ public class MainActivity extends BaseActivity {
   /**
    * Prompts for notification permission once on first app launch (Android 13+).
    */
-  private void maybeRequestNotificationPermission() {
+  private void requestNotificationPermission() {
     if (VERSION.SDK_INT < VERSION_CODES.TIRAMISU) return;
 
     SharedPreferences prefs = getSharedPreferences(PREFS_FIRST_LAUNCH, MODE_PRIVATE);
@@ -55,6 +57,16 @@ public class MainActivity extends BaseActivity {
           .apply();
     }
   }
+
+  private void ensureNotificationChannel() {
+    NotificationChannel channel = new NotificationChannel(
+        AppConstants.NOTIFICATION_CHANNEL_ALERTS,
+        getString(R.string.notification_channel_name),
+        NotificationManager.IMPORTANCE_HIGH
+        );
+    NotificationManager nm = getSystemService(NotificationManager.class);
+    if (nm != null) nm.createNotificationChannel(channel);
+  }
   //endregion
 
   //region Setup
@@ -68,10 +80,13 @@ public class MainActivity extends BaseActivity {
     MaterialButton btnReports = findViewById(R.id.btnReports);
     MaterialButton btnSettings = findViewById(R.id.btnSettings);
 
-    btnKits.setOnClickListener(v -> startActivity(new Intent(this, KitListActivity.class)));
-    btnSearch.setOnClickListener(
-        v -> startActivity(new Intent(this, SearchSuppliesActivity.class)));
-    btnReports.setOnClickListener(v -> startActivity(new Intent(this, ReportsActivity.class)));
-    btnSettings.setOnClickListener(v -> startActivity(new Intent(this, SettingsActivity.class)));
+    btnKits.setOnClickListener(v ->
+        startActivity(new Intent(this, KitListActivity.class)));
+    btnSearch.setOnClickListener(v ->
+        startActivity(new Intent(this, SearchSuppliesActivity.class)));
+    btnReports.setOnClickListener(v ->
+        startActivity(new Intent(this, ReportsActivity.class)));
+    btnSettings.setOnClickListener(v ->
+        startActivity(new Intent(this, SettingsActivity.class)));
   }
 }
