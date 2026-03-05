@@ -203,7 +203,7 @@ public class KitListActivity extends BaseActivity {
 
     repository.getNonDeletableKitIds(ids -> {
       nonDeletableKitIds.addAll(ids);
-      Log.d(TAG, "Loaded " + ids.size() + "non-deletable kid IDs");
+      Log.d(TAG, "Loaded " + ids.size() + "non-deletable kit IDs");
     });
   }
   //endregion
@@ -358,7 +358,7 @@ public class KitListActivity extends BaseActivity {
 
   private void cancelKitNotifications(Kit kit) {
     int requestCode = NotificationScheduler.generateRequestCode(
-        String.valueOf(kit.getKitID()), "KIT");
+        String.valueOf(kit.getKitID()), NotificationScheduler.TYPE_KIT_REMINDER);
     NotificationScheduler.cancel(this, AlertReceiver.class, requestCode);
   }
   //endregion
