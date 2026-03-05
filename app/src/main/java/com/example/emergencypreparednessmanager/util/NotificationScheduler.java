@@ -6,18 +6,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import androidx.annotation.Nullable;
+import com.google.firebase.BuildConfig;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * Utility class for scheduling and cancelling inexact notifications using AlarmManager.
  * <p>
  * Supports:
  * <ul>
- *   <li>One-time notifications via {@link AlarmManager#setWindow(int, long, long, PendingIntent)}
- *       (available since API 19), allowing the system to batch alarms within a window for battery efficiency</li>
+ *   <li>One-time notifications via {@link AlarmManager#setWindow(int, long, long, PendingIntent)},
+ *       allowing the system to batch alarms within a window for battery efficiency</li>
  *   <li>Repeating notifications via {@link AlarmManager#setInexactRepeating(int, long, long, PendingIntent)}</li>
  * </ul>
  * Date strings must be in "MM/dd/yyyy" format.
@@ -29,7 +31,6 @@ public class NotificationScheduler {
 
   //region Constants
   private static final String TAG = "NotificationScheduler";
-  private static final boolean DEBUG = true;
   private static final String DATE_PATTERN = "MM/dd/yyyy";
 
   private static final String KEY_HOUR = "notify_hour";
@@ -43,7 +44,9 @@ public class NotificationScheduler {
   private static final long ONE_TIME_WINDOW_MILLIS =
       15L * 60L * 1000L; // 15-minute batching windows
 
-  // Intent extra keys (use these everywhere: scheduler & receiver)
+  private static final int PI_FLAGS =
+      PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
+
   public static final String EXTRA_TYPE = "extra_type";
   public static final String EXTRA_ITEM_ID = "extra_item_id";
   public static final String EXTRA_KIT_ID = "extra_kit_id";
@@ -53,7 +56,6 @@ public class NotificationScheduler {
   public static final String EXTRA_MESSAGE = "notificationMessage";
   public static final String EXTRA_REQUEST_CODE = "requestCode";
 
-  // Known notification types
   public static final String TYPE_ITEM_ZERO = "TYPE_ITEM_ZERO";
   public static final String TYPE_ITEM_EXPIRED = "TYPE_ITEM_EXPIRED";
   public static final String TYPE_ITEM_EXPIRES_SOON = "TYPE_ITEM_EXPIRES_SOON";
@@ -72,7 +74,10 @@ public class NotificationScheduler {
    */
   public static int generateRequestCode(String id, String type) {
     int code = (id + "_" + type).hashCode();
-    log("Generated requestCode=" + code + " for id=" + id + ", type=" + type);
+
+    if (BuildConfig.DEBUG) { // only log in debug builds
+      Log.d(TAG, "Generated requestCode=" + code + " for id=" + id + ", type=" + type);
+    }
     return code;
   }
   //endregion
@@ -92,7 +97,7 @@ public class NotificationScheduler {
   }
   //endregion
 
-  //region Global Notification Time (SharedPreferences)
+  //region Global Notification Time
   /**
    * Sets the global notification time (hour and minute) used when no specific time is provided.
    *
@@ -119,7 +124,7 @@ public class NotificationScheduler {
   }
   //endregion
 
-  //region Scheduling - Date String
+  //region Schedule (date string)
   /**
    * Schedules a one-time inexact notification for a specific date at the given (or global) time. If
    * the calculated trigger time is in the past, bumps it to the next global time tomorrow.
@@ -151,26 +156,25 @@ public class NotificationScheduler {
       @Nullable Integer daysBefore
   ) {
     if (!areNotificationsEnabled(context)) {
-      log("Notifications disabled. Skipping schedule() for code=" + requestCode);
+      Log.d(TAG, "Notifications disabled. Skipping schedule() for code=" + requestCode);
       return;
     }
 
-    log("Scheduling one-time: code=" + requestCode + ", type=" + type + ", date=" + dateString);
+    Log.d(TAG, "Scheduling one-time: code=" + requestCode + ", type=" + type + ", date=" + dateString);
 
     int notifHour = (hour != null) ? hour : getGlobalHour(context);
     int notifMinute = (minute != null) ? minute : getGlobalMinute(context);
 
-    Date date = parseDate(dateString);
-    if (date == null) {
-      log("Invalid date format: " + dateString);
+    int[] ymd = parseMonthDayYearToYmdUtc(dateString);
+    if (ymd == null) {
+      Log.e(TAG, "Invalid date format: " + dateString);
       return;
     }
 
+    // Build the trigger time in the user's local timezone, using the chosen calendar date.
     Calendar cal = Calendar.getInstance();
-    cal.setTime(date);
-    cal.set(Calendar.HOUR_OF_DAY, notifHour);
-    cal.set(Calendar.MINUTE, notifMinute);
-    cal.set(Calendar.SECOND, 0);
+    cal.clear();
+    cal.set(ymd[0], ymd[1], ymd[2], notifHour, notifMinute, 0);
     cal.set(Calendar.MILLISECOND, 0);
 
     long triggerAt = cal.getTimeInMillis();
@@ -195,7 +199,7 @@ public class NotificationScheduler {
   }
   //endregion
 
-  //region Scheduling - Milliseconds
+  //region Schedule (millis)
   /**
    * Schedules a one-time inexact notification at the specified trigger time.
    *
@@ -223,15 +227,15 @@ public class NotificationScheduler {
       @Nullable Integer daysBefore
   ) {
     if (!areNotificationsEnabled(context)) {
-      log("Notifications disabled. Skipping scheduleAtMillis() for code=" + requestCode);
+      Log.d(TAG, "Notifications disabled. Skipping scheduleAtMillis() for code=" + requestCode);
       return;
     }
 
-    log("Scheduling at millis: code=" + requestCode + ", triggers=" + triggerAtMillis);
+    Log.d(TAG, "Scheduling at millis: code=" + requestCode + ", triggers=" + triggerAtMillis);
 
     AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
     if (am == null) {
-      log("AlarmManager unavailable");
+      Log.e(TAG, "AlarmManager unavailable");
       return;
     }
 
@@ -247,6 +251,9 @@ public class NotificationScheduler {
         daysBefore
     );
 
+    // Clear any previous alarm that has this exact PendingIntent
+    am.cancel(pi);
+
     am.setWindow(
         AlarmManager.RTC_WAKEUP,
         triggerAtMillis,
@@ -254,11 +261,11 @@ public class NotificationScheduler {
         pi
     );
 
-    log("Scheduled inexact window alarm: code=" + requestCode);
+    Log.d(TAG, "Scheduled inexact window alarm: code=" + requestCode);
   }
   //endregion
 
-  //region Scheduling - Repeating
+  //region Repeating
   /**
    * Schedules an inexact repeating notification every N days.
    *
@@ -286,18 +293,19 @@ public class NotificationScheduler {
       @Nullable String kitId
   ) {
     if (!areNotificationsEnabled(context)) {
-      log("Notifications disabled. Skipping scheduleRepeatingDays() for code=" + requestCode);
+      Log.d(TAG, "Notifications disabled. Skipping scheduleRepeatingDays()");
       return;
     }
 
     if (intervalDays <= 0) {
-      log("Invalid intervalDays: " + intervalDays);
+      Log.e(TAG, "Invalid intervalDays: " + intervalDays);
       return;
     }
 
     AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
     if (am == null) {
-      log("AlarmManager unavailable");
+      Log.e(TAG, "AlarmManager unavailable");
       return;
     }
 
@@ -311,6 +319,9 @@ public class NotificationScheduler {
         kitId,
         null);
 
+    // Clear any previous alarm that has this exact PendingIntent
+    am.cancel(pi);
+
     long intervalMillis = intervalDays * 24L * 60L * 60L * 1000L;
 
     am.setInexactRepeating(
@@ -320,7 +331,7 @@ public class NotificationScheduler {
         pi
     );
 
-    log("Scheduled repeating alarm: code=" + requestCode + ", every " + intervalDays + " days");
+    Log.d(TAG, "Scheduled repeating alarm: code=" + requestCode + ", every " + intervalDays + " days");
   }
 
   /**
@@ -345,20 +356,23 @@ public class NotificationScheduler {
       @Nullable String kitId
   ) {
     if (!areNotificationsEnabled(context)) {
-      log("Notifications disabled. Skipping scheduleKitFrequency() for code=" + requestCode);
+      Log.d(TAG, "Notifications disabled. Skipping scheduleKitFrequency()");
       return;
     }
 
     String f = (frequency == null) ? "" : frequency.trim().toUpperCase(Locale.US);
 
     int intervalDays;
+
     switch (f) {
       case "QUARTERLY":
         intervalDays = 90;
         break;
+
       case "YEARLY":
         intervalDays = 365;
         break;
+
       default:
         intervalDays = 30;
         break;
@@ -376,11 +390,12 @@ public class NotificationScheduler {
         intervalDays,
         requestCode,
         null,
-        kitId);
+        kitId
+    );
   }
   //endregion
 
-  //region Helpers - Date & Time Utilities
+  //region Date Helpers
   /**
    * Subtracts days from a date string and returns the new date in "MM/dd/yyyy".
    *
@@ -390,16 +405,22 @@ public class NotificationScheduler {
    */
   @Nullable
   public static String subtractDays(String baseDateString, int daysBefore) {
-    Date base = parseDate(baseDateString);
-    if (base == null) {
-      return null;
-    }
 
-    Calendar cal = Calendar.getInstance();
-    cal.setTime(base);
+    int[] ymd = parseMonthDayYearToYmdUtc(baseDateString);
+    if (ymd == null) return null;
+
+    Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"), Locale.US);
+
+    cal.clear();
+    cal.set(ymd[0], ymd[1], ymd[2], 0, 0, 0);
+    cal.set(Calendar.MILLISECOND, 0
+    );
     cal.add(Calendar.DAY_OF_YEAR, -daysBefore);
 
-    return new SimpleDateFormat(DATE_PATTERN, Locale.US).format(cal.getTime());
+    SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN, Locale.US);
+    sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+    return sdf.format(cal.getTime());
   }
 
   /**
@@ -410,6 +431,7 @@ public class NotificationScheduler {
    * @return millis timestamp of next global notification time
    */
   public static long nextGlobalTriggerMillis(Context context) {
+
     int hour = getGlobalHour(context);
     int minute = getGlobalMinute(context);
 
@@ -438,46 +460,54 @@ public class NotificationScheduler {
    * @param requestCode the code used when scheduling
    */
   public static void cancel(Context context, Class<?> receiver, int requestCode) {
-    log("Cancelling notification: code=" + requestCode);
+    Log.d(TAG, "Cancelling notification: code=" + requestCode);
 
     AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-    if (am == null) {
-      return;
-    }
 
-    Intent intent = new Intent(context, receiver);
-    intent.setAction(buildAction(requestCode));
+    if (am == null) return;
 
-    PendingIntent pi = PendingIntent.getBroadcast(
+    PendingIntent pi = buildPendingIntent(
         context,
+        receiver,
+        TYPE_KIT_REMINDER,
+        "",
+        "",
         requestCode,
-        intent,
-        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        null,
+        null,
+        null
     );
 
-    if (pi != null) {
-      am.cancel(pi);
-      pi.cancel();
-      log("Cancelled alarm code=" + requestCode);
-    } else {
-      log("No existing alarm found to cancel for code=" + requestCode);
-    }
+    am.cancel(pi);
+    pi.cancel();
   }
   //endregion
 
   //region Private Helpers
-  private static void log(String msg) {
-    if (DEBUG) {
-      Log.d(TAG, msg);
-    }
-  }
+  private static int[] parseMonthDayYearToYmdUtc(@Nullable String dateString) {
 
-  @Nullable
-  private static Date parseDate(String dateString) {
+    if (dateString == null) return null;
+
     try {
-      return new SimpleDateFormat(DATE_PATTERN, Locale.US).parse(dateString);
+
+      SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN, Locale.US);
+      sdf.setLenient(false);
+      sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+      Date d = sdf.parse(dateString);
+      if (d == null) return null;
+
+      Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"), Locale.US);
+      utc.setTime(d);
+
+      return new int[]{
+          utc.get(Calendar.YEAR),
+          utc.get(Calendar.MONTH),
+          utc.get(Calendar.DAY_OF_MONTH)
+      };
+
     } catch (Exception e) {
-      log("Date parse failed: " + dateString + " -> " + e.getMessage());
+      Log.e(TAG, "Date parse failed:" + dateString, e);
       return null;
     }
   }
@@ -522,7 +552,7 @@ public class NotificationScheduler {
         context,
         requestCode,
         intent,
-        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        PI_FLAGS
     );
   }
   //endregion
