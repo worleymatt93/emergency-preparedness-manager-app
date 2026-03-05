@@ -3,24 +3,69 @@ package com.example.emergencypreparednessmanager.ui.activities;
 import android.os.Bundle;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import com.example.emergencypreparednessmanager.R;
 import com.google.android.material.appbar.MaterialToolbar;
+import java.util.Objects;
 
 /**
  * Hosts the settings preferences UI. Uses a PreferenceFragmentCompat for settings content.
  */
 public class SettingsActivity extends AppCompatActivity {
 
+  //region Constants
+  private MaterialToolbar toolbar;
+  //endregion
+
   //region Lifecycle
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    EdgeToEdge.enable(this);
+
     setContentView(R.layout.activity_settings);
 
-    MaterialToolbar toolbar = findViewById(R.id.toolbar);
-    setSupportActionBar(toolbar);
-    toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
+    EdgeToEdge.enable(this);
+
+    // Bind views
+    toolbar = findViewById(R.id.toolbar);
+
+    setupToolbar();
+    setupInsets();
+
+    getSupportFragmentManager()
+        .beginTransaction()
+        .replace(R.id.settings_container, new SettingsPreferencesFragment())
+        .commit();
   }
-  //endregion
+
+  private void setupToolbar() {
+    setSupportActionBar(toolbar);
+    if (toolbar != null) {
+      toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
+    }
+  }
+
+  private void setupInsets() {
+    // Toolbar: top clearance for status bar
+    if (toolbar != null) {
+      ViewCompat.setOnApplyWindowInsetsListener(toolbar, (v, insets) -> {
+        WindowInsetsCompat insetsCompat = WindowInsetsCompat.toWindowInsetsCompat(
+            Objects.requireNonNull(insets.toWindowInsets()));
+        androidx.core.graphics.Insets systemBars = insetsCompat.getInsets(
+            WindowInsetsCompat.Type.systemBars());
+
+        v.setPadding(
+            systemBars.left,
+            systemBars.top,
+            systemBars.right,
+            v.getPaddingBottom()
+        );
+
+        toolbar.setTitleCentered(true);
+
+        return insets;
+      });
+    }
+  }
 }
