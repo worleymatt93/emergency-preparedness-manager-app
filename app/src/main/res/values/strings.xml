@@ -86,7 +86,7 @@
   <string name="category_required">Select a category</string>
 
   <string name="quantity">Quantity</string>
-  <string name="quantity_invalid">Quantity must be a positive number</string>
+  <string name="quantity_invalid">Quantity must be zero or greater</string>
 
   <string name="expiration_date">Expiration Date</string>
   <string name="expiration_date_optional">Expiration date (optional)</string>
@@ -123,7 +123,6 @@
   <string name="notify_when_zero">Notify when quantity reaches zero</string>
 
   <string name="kit_notification_title">Reminder: Check Kit %s</string>
-  <string name="kit_notification_message">Time to review your kit: %s</string>
 
   <string name="item_expiration_title">Item Expiration Reminder: %s</string>
   <string name="item_expired_message">Item %s expires on %s. Check and replace if needed.</string>
@@ -375,7 +374,6 @@
   <string name="notifications_enabled">Notifications enabled</string>
   <string name="notifications_denied">Notifications denied</string>
   <string name="notification_channel_name">Alerts</string>
-  <string name="notification_channel_description">Reminders and expiration notifications</string>
 
   <!-- ===================================================== -->
   <!-- 15. Plurals -->
