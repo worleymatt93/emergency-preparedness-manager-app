@@ -41,15 +41,6 @@ public interface KitItemDAO {
    */
   @Query("SELECT * FROM KitItems WHERE kitID = :kitID ORDER BY itemID ASC")
   List<KitItem> getItemsForKit(int kitID);
-
-  /**
-   * Number of items in a given kit. Used for delete protection.
-   *
-   * @param kitID kit ID
-   * @return number of items in a kit
-   */
-  @Query("SELECT COUNT(*) FROM KitItems WHERE kitID = :kitID")
-  int countItemsForKit(int kitID);
   //endregion
 
   //region Item-level Operations
@@ -118,7 +109,7 @@ public interface KitItemDAO {
   @Query(
       "SELECT " +
           "ki.itemID, ki.kitID, ki.itemName, ki.quantity, ki.expirationDate, " +
-          "k.kitName, c.categoryName " +
+          "k.kitName, k.location, c.categoryName " +
           "FROM KitItems ki " +
           "JOIN Kits k ON k.kitID = ki.kitID " +
           "LEFT JOIN Categories c ON c.categoryID = ki.categoryID " +
