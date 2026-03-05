@@ -395,7 +395,7 @@ public class KitItemEditActivity extends BaseActivity {
 
     picker.addOnPositiveButtonClickListener(selection -> {
       SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-      sdf.setTimeZone(TimeZone.getDefault());
+      sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
       String date = sdf.format(new Date(selection));
       expirationText.setText(date);
       expirationLayout.setError(null);
@@ -430,7 +430,7 @@ public class KitItemEditActivity extends BaseActivity {
     int qty;
     try {
       qty = TextUtils.isEmpty(qtyStr) ? 1 : Integer.parseInt(qtyStr);
-      if (qty <= 0) {
+      if (qty < 0) {
         throw new NumberFormatException();
       }
     } catch (NumberFormatException e) {
