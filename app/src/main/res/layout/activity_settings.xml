@@ -31,7 +31,7 @@
     android:id="@+id/settings_container"
     android:layout_width="0dp"
     android:layout_height="0dp"
-    android:name="com.example.emergencypreparednessmanager.ui.activities.SettingsPreferencesFragment"
+    android:name="com.emergencypreparedness.manager.ui.activities.SettingsPreferencesFragment"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"

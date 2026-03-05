@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.emergencypreparednessmanager"
+    namespace = "com.emergencypreparedness.manager"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.emergencypreparednessmanager"
+        applicationId = "com.emergencypreparedness.manager"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
