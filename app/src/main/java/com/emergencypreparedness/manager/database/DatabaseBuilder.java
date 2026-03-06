@@ -28,8 +28,7 @@ import java.util.concurrent.Executors;
  */
 @Database(
     entities = {Kit.class, KitItem.class, Category.class},
-    version = 15, // Do not increase without adding a migration or Room will throw at startup
-    exportSchema = true
+    version = 15 // Do not increase without adding a migration or Room will throw at startup
 )
 public abstract class DatabaseBuilder extends RoomDatabase {
 
@@ -79,12 +78,6 @@ public abstract class DatabaseBuilder extends RoomDatabase {
                   super.onOpen(db);
                   // Re-seed if empty
                   databaseExecutor.execute(() -> ensureDefaultCategories(INSTANCE));
-                }
-
-                @Override
-                public void onDestructiveMigration(@NonNull SupportSQLiteDatabase db) {
-                  super.onDestructiveMigration(db);
-                  Log.d(TAG, "Destructive migration occurred - all data wiped.");
                 }
               })
               .build();
