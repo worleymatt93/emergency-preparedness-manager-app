@@ -2,9 +2,11 @@ package com.emergencypreparedness.manager.ui.activities;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.os.Build;
+import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -12,18 +14,52 @@ import android.widget.EditText;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.preference.PreferenceManager;
 import com.emergencypreparedness.manager.R;
 
 /**
  * Base activity that provides shared behavior across screens:
  * - Dismiss keyboard when tapping outside a focused EditText
  * - Helpers for Android 13+ notification permission
+ * - Applies saved theme early on every launch to persist across process death
  */
 public abstract class BaseActivity extends AppCompatActivity {
 
   private static final int REQ_NOTIFICATIONS = 1001;
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    // Apply saved theme BEFORE super.onCreate() to avoid flash of wrong theme
+    applySavedTheme();
+    super.onCreate(savedInstanceState);
+  }
+
+  /**
+   * Reads the user's saved theme preference and applies the correct night mode.
+   */
+  private void applySavedTheme() {
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+    // Retrieve saved theme (fallback to "system" if never set)
+    String themeValue = prefs.getString(
+        getString(R.string.pref_key_theme),
+        getString(R.string.pref_theme_value_system)
+    );
+
+    int nightMode;
+    if (themeValue.equals(getString(R.string.pref_theme_value_light))) {          // "light"
+      nightMode = AppCompatDelegate.MODE_NIGHT_NO;
+    } else if (themeValue.equals(getString(R.string.pref_theme_value_dark))) {    // "dark"
+      nightMode = AppCompatDelegate.MODE_NIGHT_YES;
+    } else {
+      nightMode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;                     // "system"
+    }
+
+    AppCompatDelegate.setDefaultNightMode(nightMode);
+  }
 
   /**
    * Requests POST_NOTIFICATIONS permission on Android 13+ if not already granted.

@@ -2,7 +2,6 @@ package com.emergencypreparedness.manager.ui.activities;
 
 import android.os.Bundle;
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.emergencypreparedness.manager.R;
@@ -12,7 +11,7 @@ import java.util.Objects;
 /**
  * Hosts the settings preferences UI. Uses a PreferenceFragmentCompat for settings content.
  */
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends BaseActivity {
 
   //region Constants
   private MaterialToolbar toolbar;
