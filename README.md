@@ -9,48 +9,105 @@
 [![Min SDK](https://img.shields.io/badge/min%20SDK-26-orange)](https://developer.android.com/about/versions/android-8.0)
 [![Target SDK](https://img.shields.io/badge/target%20SDK-35-brightgreen)](https://developer.android.com/about/versions/15)
 
-**Emergency Preparedness Manager** is a privacy-first, fully offline Android app that helps individuals and families organize emergency kits, track supplies, monitor expiration dates, and receive timely reminders, so you're never caught unprepared.
+---
 
-From hurricanes and power outages to wildfires or everyday readiness, this app puts complete control in your hands: no internet, no cloud, no tracking.
+## 📱 Overview
 
-## Features
+**Emergency Preparedness Manager** is a privacy-first, fully offline Android application for managing emergency preparedness kits, tracking supplies, and monitoring expiration dates with automated reminders.
 
-- **Multiple Kits**: Create, edit, and manage separate kits for home, car, workplace, travel, bug-out bag, or family members
-- **Detailed Supply Tracking**: Add items with quantities, categories (Water, Food, Medical, Tools, etc.), brands, purchase dates, and expiration dates
-- **Smart Notifications**: High-priority alerts for low stock, approaching expirations, zero-quantity items, and recurring kit checks (monthly/quarterly/yearly)
-- **Material 3 UI**: Clean, modern design with light/dark/system themes and intuitive navigation
-- **Fully Offline & Private**: All data stored locally using Room — no network access, no data leaves your device
-- **Household Settings**: Customize household size for water/food recommendations
-- **Search & Reports**: Quick search across kits/items + basic inventory report view
-- **Swipe-to-Delete Protection**: Prevents deleting kits that contain items (with undo via Snackbar)
+It is designed for complete local control:
+- No internet required
+- No cloud storage
+- No tracking or analytics
+
+The goal is simple: ensure individuals and families stay prepared for emergencies ranging from natural disasters to everyday disruptions.
+
+---
+
+## ✨ Features
+
+### 📦 Inventory & Kit Management
+- Create and manage multiple kits (home, car, travel, workplace, bug-out bag, etc.)
+- Track items with quantity, category, brand, purchase date, and expiration date
+
+- ### 🔔 Smart Notifications
+- Low stock alerts
+- Expiration warnings
+- Zero-quantity alerts
+- Scheduled kit check reminders (monthly, quarterly, yearly)
+
+### 📊 Reporting & Insights
+- Inventory overview report
+- Quick search across all kits and items
+
+### 🎨 User Experience
+- Material 3 design system
+- Light, dark, and system themes
+- Swipe-to-delete protection with undo support
+
+### 🔐 Privacy & Offline-First Design
+- Fully offline operation
+- Local-only storage using Room database
+- No external data transmission
+
+---
+
+## 🧠 Architecture & Tech Stack
+
+- **Language:** Java  
+- **UI:** XML (Android Views) with Material 3 components  
+- **Architecture:** Repository pattern with asynchronous callbacks  
+- **Database:** Room (SQLite abstraction)  
+- **Background Processing:** ExecutorService + Handler (main thread coordination)  
+- **Notifications:** AlarmManager + BroadcastReceiver  
+- **Settings:** SharedPreferences + PreferenceFragmentCompat  
+- **Build System:** Gradle
+
+---
 
 ## Screenshots
 
-WILL ADD SOON
+### Main Screen
+<img src="screenshots/main_screen.png" width="300"/>
 
-<!-- Placeholder layout -->
-<!-- ![Home Screen](screenshots/home.png) ![Kit List](screenshots/kit_list.png) ![Item Edit](screenshots/item_edit.png) ![Settings](screenshots/settings.png) -->
+### Kit List
+<img src="screenshots/kitlist.png" width="300"/>
 
-## Tech Stack
+### Kit Items
+<img src="screenshots/itemlist.png" width="300"/>
 
-- **Language**: Java
-- **UI**: Traditional Android Views + Material 3 components (XML layouts)
-- **Architecture**: Repository pattern with callback-based async data access
-- **Local Database**: Room (SQLite) for persistent kit, item, and category data
-- **Background Work**: ExecutorService (fixed thread pool) + Handler for main-thread callbacks
-- **Notifications**: AlarmManager + inexact repeating/setWindow alarms + BroadcastReceiver (AlertReceiver)
-- **Settings**: SharedPreferences + PreferenceFragmentCompat (XML preferences)
-- **Permissions**: POST_NOTIFICATIONS (Android 13+) with runtime check
-- **Build Tools**: Gradle, Android Studio
+### Reports
+<img src="screenshots/report.png" width="300"/>
+
+### Settings
+<img src="screenshots/settings.png" width="300"/>
+
+---
+
+## 🔗 Repository
+
+https://github.com/mattworleydev/emergency-preparedness-manager-app
+
+---
+
+## 🚧 Project Context
+
+Built as a full Android capstone project demonstrating:
+- Offline-first application design
+- Local database architecture using Room
+- Background task scheduling with Android system services
+- Real-world inventory and notification logic
+
+---
 
 ## Installation
 
 ### For Users
-- Currently in internal/closed testing on Google Play (opt-in link available upon request or in release notes)
-- One-time $25 Google Play developer fee required for full access
+- Currently in internal/closed testing on Google Play
+- Opt-in access available upon request
 
 ### For Developers / Sideloading
 
 1. Clone the repository:
-   ```bash
-   git clone https://github.com/mattworleydev/emergency-preparedness-manager-app.git
+```bash
+git clone https://github.com/mattworleydev/emergency-preparedness-manager-app.git
