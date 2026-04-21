@@ -71,10 +71,10 @@ The goal is simple: ensure individuals and families stay prepared for emergencie
 <img src="screenshots/main_screen.png" width="300"/>
 
 ### Kit List
-<img src="screenshots/kitlist.png" width="300"/>
+<img src="screenshots/kit_list.png" width="300"/>
 
 ### Kit Items
-<img src="screenshots/itemlist.png" width="300"/>
+<img src="screenshots/item_list.png" width="300"/>
 
 ### Reports
 <img src="screenshots/report.png" width="300"/>
