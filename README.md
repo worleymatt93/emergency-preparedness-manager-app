@@ -30,7 +30,7 @@ The goal is simple: ensure individuals and families stay prepared for emergencie
 - Create and manage multiple kits (home, car, travel, workplace, bug-out bag, etc.)
 - Track items with quantity, category, brand, purchase date, and expiration date
 
-- ### 🔔 Smart Notifications
+### 🔔 Smart Notifications
 - Low stock alerts
 - Expiration warnings
 - Zero-quantity alerts
