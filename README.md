@@ -65,7 +65,7 @@ The goal is simple: ensure individuals and families stay prepared for emergencie
 
 ---
 
-## Screenshots
+## 🖼️ Screenshots
 
 ### Main Screen
 <img src="screenshots/main_screen.png" width="300"/>
